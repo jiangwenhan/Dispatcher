@@ -5,24 +5,37 @@ import static com.ku6.cdn.dispatcher.common.Constrants.*;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.ku6.cdn.dispatcher.common.AreaNode;
 import com.ku6.cdn.dispatcher.common.DiskOwner;
 import com.ku6.cdn.dispatcher.common.DispatchTask;
 import com.ku6.cdn.dispatcher.common.GroupNode;
+import com.ku6.cdn.dispatcher.common.SynTask;
 import com.ku6.cdn.dispatcher.common.collection.DispatchTaskPriorityQueue;
+import com.ku6.cdn.dispatcher.common.collection.FidDiskIdPair;
+import com.ku6.cdn.dispatcher.common.collection.FidSynTaskMap;
 import com.ku6.cdn.dispatcher.common.entity.Disk;
 import com.ku6.cdn.dispatcher.common.entity.Group;
 import com.ku6.cdn.dispatcher.common.entity.HotServer;
 import com.ku6.cdn.dispatcher.common.entity.Node;
 import com.ku6.cdn.dispatcher.common.entity.Server;
 import com.ku6.cdn.dispatcher.common.util.Mappings;
+import com.ku6.cdn.dispatcher.common.util.SynTaskBuilder;
 
 
 @Component
@@ -30,6 +43,8 @@ public class Manager implements InitializingBean {
 	
 	private static SessionFactory cdnSystemSessionFactory;
 	private static SessionFactory utccSessionFactory;
+	
+	private final ExecutorService es = Executors.newCachedThreadPool();
 	
 	// node maps
 	private Map<Long, GroupNode> groupNodes;
@@ -47,8 +62,27 @@ public class Manager implements InitializingBean {
 			
 		});
 	
+	private final Map<Long, FidSynTaskMap> waitSrcMap = Maps.newConcurrentMap();
+	private final Map<Long, FidSynTaskMap> waitDispatchMap = Maps.newConcurrentMap();
+	private final Map<Long, FidSynTaskMap> completeMap = Maps.newConcurrentMap();
+	private final Map<Long, Set<Long>> storeDiskMap = Maps.newConcurrentMap();
+	
 	private final Map<Long, Long> pfidSrcSrvMap = Maps.newConcurrentMap();
 	private final Map<Long, Long> pfidSrcDiskMap = Maps.newConcurrentMap();
+	private final Map<Long, Map<Long, SynTask>> map = Maps.newConcurrentMap();
+	
+	public Manager() {
+		init();
+		es.submit(new Callable<Boolean>() {
+
+			@Override
+			public Boolean call() throws Exception {
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+		});
+	}
 	
 	private void init() {
 		initDiskMaps();
@@ -152,6 +186,170 @@ public class Manager implements InitializingBean {
 		dispatchTaskMap.put(task.getPfid(), task);
 		
 		return true;
+	}
+	
+	private boolean createSynTask(DispatchTask task, List<SynTask> retTasks) {
+		Map<Long, Set<Long>> mapSet = getSvrMap(task, task.getTaskType());
+		return createSynTask(task, mapSet, retTasks);
+	}
+	
+	private boolean createSynTask(DispatchTask task, Map<Long, Set<Long>> mapSet, List<SynTask> retTasks) {
+		int iCount = 0;
+		if (task.getTaskType() == COMMON_NODE_HOT || task.getTaskType() == COMMON_NODE_COLD) {
+			Map<Long, AreaNode> areaNodes = 
+					task.getTaskType() == COMMON_NODE_HOT ? hotAreaNodes : coldAreaNodes;
+			for (Entry<Long, AreaNode> entry : areaNodes.entrySet()) {
+				List<SynTask> synTasks = null;
+				int num = task.getNum() - mapSet.get(entry.getValue().getAreaId()).size();
+				if (num <= 0) {
+					++iCount;
+				} else {
+					// TODO: Create Task
+					entry.getValue().createTask();
+				}
+				if (synTasks == null || synTasks.size() == 0) {
+					continue;
+				}
+				retTasks.addAll(synTasks);
+				if (iCount == coldAreaNodes.size())
+					return true;
+			}
+		} else if (task.getTaskType() == COMMON_GROUP_COLD) {
+			
+		}
+		return false;
+	}
+	
+	private Map<Long, Set<Long>> getSvrMap(DispatchTask task, int type) {
+		String nodeInfo = getValueFromMemcached(StringUtils.stripStart(task.getPfname(), "/"));
+		String[] strings = nodeInfo.split(",");
+		for (String each : strings) {
+			String[] eachItems = each.split(":");
+			long nodeId = Long.valueOf(eachItems[0]);
+			String[] disks = eachItems[1].split("/");
+			for (String disk : disks) {
+				long diskId = nodeId * 10000L + Long.valueOf(disk);
+				if (Mappings.DISKS.containsKey(diskId) 
+						&& Mappings.OK_DISKS.contains(diskId)) {
+					// TODO: insert to result map
+					SynTask synTask = new SynTaskBuilder()
+										.pfid(task.getPfid())
+										.opt(task.getOpt())
+										.destDiskId(diskId)
+										.destSvrId(Mappings.DISKS.get(diskId).getDisk().getSvrId())
+										.priority(task.getPriority())
+										.status(TASK_COMPLETE)
+										.childNum(0)
+										.weight(-1)
+										.altWeight(-1)
+										.ispType(0)
+										.level(1)
+										.svrType(SVR_TYPE_CDN_SRC)
+										.build();
+					if (!completeMap.containsKey(task.getPfid())
+							|| !completeMap.get(task.getPfid()).contains(diskId)) {
+						if (!dispatchTaskMap.containsKey(task.getPfid())
+								|| !dispatchTaskMap.get(task.getPfid()).getBadSrc().contains(diskId)) {
+							FidSynTaskMap fidSynTaskMap;
+							if (completeMap.containsKey(task.getPfid())) {
+								fidSynTaskMap = completeMap.get(task.getPfid());
+							} else {
+								fidSynTaskMap = new FidSynTaskMap();
+							}
+							fidSynTaskMap.put(diskId, synTask);
+							completeMap.put(task.getPfid(), fidSynTaskMap);
+						}
+					}
+					
+					if (waitSrcMap.containsKey(task.getPfid())) {
+						waitSrcMap.remove(task.getPfid());
+					}
+					if (waitDispatchMap.containsKey(task.getPfid())) {
+						waitDispatchMap.remove(task.getPfid());
+					}
+					if (storeDiskMap.containsKey(task.getPfid())) {
+						storeDiskMap.remove(task.getPfid());
+					}
+				}
+			}
+		}
+		
+		Map<Long, Set<Long>> mapSvr = Maps.newConcurrentMap();
+		Set<FidDiskIdPair> delSet = Sets.newHashSet();
+		if (waitSrcMap.containsKey(task.getPfid())) {
+			FidSynTaskMap fidSynTaskMap = waitSrcMap.get(task.getPfid());
+			for (Entry<Long, SynTask> entry : fidSynTaskMap.entrySet()) {
+				SynTask synTask = entry.getValue();
+				if (synTask.getSvrType() != SVR_TYPE_INIT_SRC
+						&& Mappings.DISKS.containsKey(synTask.getDestDiskId())) {
+					long nodeId = synTask.getDestDiskId() / 10000L;
+					long key, value;
+					if (synTask.getOpt() == OPT_SYN
+							&& !delSet.contains(new FidDiskIdPair(task.getPfid(), synTask.getDestDiskId()))) {
+						if (type == COMMON_GROUP_COLD && Mappings.NODE_GROUP_MAP.containsKey(nodeId)) {
+							key = Mappings.NODE_GROUP_MAP.get(nodeId);
+						} else {
+							key = nodeId;
+						}
+						value = Mappings.DISKS.get(synTask.getDestDiskId()).getDisk().getSvrId();
+						insert(mapSvr, key, value);
+					} else if (synTask.getOpt() == OPT_DEL
+							&& mapSvr.get(nodeId).contains(Mappings.DISKS.get(synTask.getDestDiskId()).getDisk().getSvrId())) {
+						if (type == COMMON_GROUP_COLD && Mappings.NODE_GROUP_MAP.containsKey(nodeId)) {
+							key = Mappings.NODE_GROUP_MAP.get(nodeId);
+						} else {
+							key = nodeId;
+						}
+						value = Mappings.DISKS.get(synTask.getDestDiskId()).getDisk().getSvrId();
+						remove(mapSvr, key, value);
+						delSet.add(new FidDiskIdPair(task.getPfid(), synTask.getDestDiskId()));
+					} else if (synTask.getOpt() == OPT_DEL) {
+						delSet.add(new FidDiskIdPair(task.getPfid(), synTask.getDestDiskId()));
+					}
+				}
+			}
+		}
+		
+		if (waitDispatchMap.containsKey(task.getPfid())) {
+			
+		}
+		
+		if (completeMap.containsKey(task.getPfid())) {
+			
+		}
+		
+		return mapSvr;
+	}
+	
+	private void insert(Map<Long, Set<Long>> mapSvr, long key, long value) {
+		if (mapSvr == null) {
+			return;
+		}
+		
+		Set<Long> set;
+		if (mapSvr.containsKey(key)) {
+			set = mapSvr.get(key);
+		} else {
+			set = Sets.newHashSet();
+		}
+		
+		set.add(value);
+		mapSvr.put(key, set);
+	}
+	
+	private void remove(Map<Long, Set<Long>> mapSvr, long key, long value) {
+		if (mapSvr == null) {
+			return;
+		}
+		
+		if (mapSvr.containsKey(key)) {
+			mapSvr.get(key).remove(value);
+		}
+	}
+	
+	private String getValueFromMemcached(String key) {
+		String value = key;
+		return value;
 	}
 	
 	public static SessionFactory getCdnSystemSessionFactory() {

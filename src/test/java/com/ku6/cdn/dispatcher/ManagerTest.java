@@ -2,9 +2,16 @@ package com.ku6.cdn.dispatcher;
 
 import static org.junit.Assert.*;
 
+import java.util.Map;
+import java.util.Set;
+
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.ku6.cdn.dispatcher.common.collection.AbstractPair;
 
 public class ManagerTest {
 
@@ -21,10 +28,17 @@ public class ManagerTest {
 		System.out.println(manager.getUtccSessionFactory());
 	}
 	
+	public class MyPair extends AbstractPair<Long, Boolean> {
+
+		public MyPair(Long first, Boolean second) {
+			super(first, second);
+		}
+		
+	}
+	
 	@Test
 	public void fuck() {
-		long shit = 0xffffffff;
-		System.out.println(shit);
+		
 	}
 
 }

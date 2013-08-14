@@ -188,11 +188,34 @@ public final class Constrants {
 	public static final Integer COMMON_NORMAL_NODE_TYPE = 1;
 	public static final Integer COMMON_PROXY_NODE_TYPE = 0;
 	
+	public static final Integer COMMON_GROUP_COLD = 1;
+	public static final Integer COMMON_NODE_COLD = 2;
+	public static final Integer COMMON_NODE_HOT = 3;
+	public static final Integer COMMON_STORE = 4;
+	
 	// Global Settings
 	public static final Long MIN_DISK_SIZE = 5L;
 	public static final Integer LEFT_SIZE_INIT_TYPE = 1;
 	public static final Integer SQUARE_INIT_TYPE = 2;
 	public static final Integer DEFAULT_MAX_EXTEND = 1000;
+	
+	// SYN Task
+	public static final Integer SVR_TYPE_INIT_SRC = 1;
+	public static final Integer SVR_TYPE_CDN_SRC = 2;
+	public static final Integer OPT_SYN = 1;
+	public static final Integer OPT_DEL = 2;
+	public static final Integer OPT_CHECK = 3;
+	public static final Integer OPT_DISK_CHECK = 4;
+	public static final Integer OPT_FULL_DISK = 100;
+	public static final Integer TASK_UNKNOWN = 0;
+	public static final Integer TASK_INIT_DEST = 1;
+	public static final Integer TASK_QUEUE = 4;
+	public static final Integer TASK_WAITING = 5;
+	public static final Integer TASK_COMPLETE = 6;
+	
+	// Dispatch status
+	public static final Integer DISPATCH_STATUS_OK = 3;
+	public static final Integer DISPATHC_STATUS_FAILED = 4;
 
 	private Constrants() {}
 }
