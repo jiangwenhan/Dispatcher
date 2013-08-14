@@ -193,6 +193,9 @@ public final class Constrants {
 	public static final Integer COMMON_NODE_HOT = 3;
 	public static final Integer COMMON_STORE = 4;
 	
+	public static final Integer COMMON_NORMAL_DO_TASK = 1;
+	public static final Integer COMMON_FULL_DO_TASK = 2;
+	
 	// Global Settings
 	public static final Long MIN_DISK_SIZE = 5L;
 	public static final Integer LEFT_SIZE_INIT_TYPE = 1;

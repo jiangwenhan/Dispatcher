@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -18,7 +17,6 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.ku6.cdn.dispatcher.common.AreaNode;
@@ -34,6 +32,7 @@ import com.ku6.cdn.dispatcher.common.entity.Group;
 import com.ku6.cdn.dispatcher.common.entity.HotServer;
 import com.ku6.cdn.dispatcher.common.entity.Node;
 import com.ku6.cdn.dispatcher.common.entity.Server;
+import com.ku6.cdn.dispatcher.common.thread.TaskConsumerCallable;
 import com.ku6.cdn.dispatcher.common.util.Mappings;
 import com.ku6.cdn.dispatcher.common.util.SynTaskBuilder;
 
@@ -44,7 +43,7 @@ public class Manager implements InitializingBean {
 	private static SessionFactory cdnSystemSessionFactory;
 	private static SessionFactory utccSessionFactory;
 	
-	private final ExecutorService es = Executors.newCachedThreadPool();
+	private final ExecutorService es = Executors.newFixedThreadPool(20);
 	
 	// node maps
 	private Map<Long, GroupNode> groupNodes;
@@ -73,15 +72,7 @@ public class Manager implements InitializingBean {
 	
 	public Manager() {
 		init();
-		es.submit(new Callable<Boolean>() {
-
-			@Override
-			public Boolean call() throws Exception {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-		});
+		run();
 	}
 	
 	private void init() {
@@ -188,9 +179,21 @@ public class Manager implements InitializingBean {
 		return true;
 	}
 	
-	private boolean createSynTask(DispatchTask task, List<SynTask> retTasks) {
+	public boolean createSynTask(DispatchTask task, List<SynTask> retTasks) {
 		Map<Long, Set<Long>> mapSet = getSvrMap(task, task.getTaskType());
 		return createSynTask(task, mapSet, retTasks);
+	}
+	
+	public boolean deleteSynTask(DispatchTask task) {
+		return false;
+	}
+	
+	public boolean checkMap(long pfid) {
+		return false;
+	}
+	
+	public boolean doTask(long pfid, int type) {
+		return false;
 	}
 	
 	private boolean createSynTask(DispatchTask task, Map<Long, Set<Long>> mapSet, List<SynTask> retTasks) {
@@ -367,6 +370,55 @@ public class Manager implements InitializingBean {
 
 	public static void setUtccSessionFactory(SessionFactory utccSessionFactory) {
 		Manager.utccSessionFactory = utccSessionFactory;
+	}
+	
+	public boolean containsKeyInDispatchMap(long pfid) {
+		return dispatchTaskMap.containsKey(pfid);
+	}
+	
+	public boolean dispatchMapInsert(long pfid, DispatchTask dispatchTask) {
+		return dispatchTaskMap.put(pfid, dispatchTask) == null ? false : true;
+	}
+	
+	public DispatchTask dispatchMapGet(long pfid) {
+		return dispatchTaskMap.get(pfid);
+	}
+	
+	public boolean containsKeyInCompleteMap(long pfid) {
+		return completeMap.containsKey(pfid);
+	}
+	
+	public boolean containsKeyInWaitSrcMap(long pfid) {
+		return waitSrcMap.containsKey(pfid);
+	}
+	
+	public boolean waitSrcMapInsert(long pfid, FidSynTaskMap fidSynTaskMap) {
+		return waitSrcMap.put(pfid, fidSynTaskMap) == null ? false : true;
+	}
+	
+	public FidSynTaskMap waitSrcMapGet(long pfid) {
+		return waitSrcMap.get(pfid);
+	}
+	
+	public boolean constainsKeyInStoreDiskMap(long pfid) {
+		return storeDiskMap.containsKey(pfid);
+	}
+	
+	public boolean storeDiskMapInsert(long pfid, Set<Long> set) {
+		return storeDiskMap.put(pfid, set) == null ? false : true;
+	}
+	
+	public Set<Long> storeDiskMapGet(long pfid) {
+		return storeDiskMap.get(pfid);
+	}
+	
+	private void run() {
+		while (true) {
+			while (!dispatchTaskQueue.isEmpty()) {
+				DispatchTask dispatchTask = dispatchTaskQueue.poll();
+				es.submit(new TaskConsumerCallable(this, dispatchTask));
+			}
+		}
 	}
 	
 	@Override

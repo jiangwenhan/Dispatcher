@@ -20,12 +20,28 @@ public abstract class AbstractPriorityQueue<T> implements PriorityQueue<T> {
 		return minMaxHeap.peekFirst();
 	}
 	
+	public T pollFirst() {
+		return minMaxHeap.pollFirst();
+	}
+	
 	public T peekLast() {
 		return minMaxHeap.peekLast();
 	}
 	
+	public T pollLast() {
+		return minMaxHeap.pollLast();
+	}
+	
 	public T peek() {
 		return minMaxHeap.peek();
+	}
+	
+	public T poll() {
+		return minMaxHeap.poll();
+	}
+	
+	public boolean isEmpty() {
+		return minMaxHeap.isEmpty();
 	}
 	
 }
