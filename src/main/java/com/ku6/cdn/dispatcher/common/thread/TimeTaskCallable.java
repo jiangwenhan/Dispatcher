@@ -77,7 +77,7 @@ public class TimeTaskCallable implements Callable<Void> {
 					}
 					if (state != -1) {
 						timeTask.setRunTs(System.currentTimeMillis() + PFID_TIME);
-						TimeTaskPriorityQueue.add(timeTask);
+//						TimeTaskPriorityQueue.add(timeTask);
 					}
 				} 
 			}

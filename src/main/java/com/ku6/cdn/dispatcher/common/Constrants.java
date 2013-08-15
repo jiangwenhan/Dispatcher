@@ -10,6 +10,8 @@ public final class Constrants {
 	 * Table Constrants, including column name
 	 */
 	
+	public static final Long GLOBAL_MOD = 10000L;
+	
 	// tb_server_info column name
 	public static final String SERVER_SVR_ID = "svr_id";
 	public static final String SERVER_SVR_TYPE = "svr_type";

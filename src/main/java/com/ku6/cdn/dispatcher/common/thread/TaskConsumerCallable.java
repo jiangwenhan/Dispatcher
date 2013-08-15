@@ -35,12 +35,12 @@ public class TaskConsumerCallable implements Callable<Boolean> {
 			return manager.createSynTask(dispatchTask, destTasks);
 		} else if (dispatchTask.getOpt() == OPT_DEL) {
 			manager.deleteSynTask(dispatchTask);
-			manager.checkMap(dispatchTask.getPfid());
+			manager.checkMap(dispatchTask.getPfid(), 0);
 			return true;
 		}
 		
 		if (!manager.containsKeyInCompleteMap(dispatchTask.getPfid())) {
-			manager.checkMap(dispatchTask.getPfid());
+			manager.checkMap(dispatchTask.getPfid(), 0);
 			return true;
 		}
 		
@@ -55,7 +55,7 @@ public class TaskConsumerCallable implements Callable<Boolean> {
 		}
 		
 		manager.doTask(dispatchTask.getPfid(), COMMON_NORMAL_DO_TASK);
-		manager.checkMap(dispatchTask.getPfid());
+		manager.checkMap(dispatchTask.getPfid(), 0);
 		
 		return true;
 	}

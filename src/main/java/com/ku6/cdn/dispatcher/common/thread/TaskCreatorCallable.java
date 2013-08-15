@@ -172,7 +172,7 @@ public class TaskCreatorCallable implements Callable<Void> {
 				timeTask.setEndTime(0);
 				timeTask.setStatus(STATUS_UNKNOWN);
 				
-				TimeTaskPriorityQueue.add(timeTask);
+//				TimeTaskPriorityQueue.add(timeTask);
 			}
 			
 		}

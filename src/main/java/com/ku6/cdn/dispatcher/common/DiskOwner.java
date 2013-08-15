@@ -4,14 +4,24 @@ import com.ku6.cdn.dispatcher.common.entity.Disk;
 
 public class DiskOwner {
 	
+	private Long groupId;
 	private Integer storeType;
 	private Disk disk;
 	
 	public DiskOwner() {}
 	
-	public DiskOwner(Integer storeType, Disk disk) {
+	public DiskOwner(Long groupId, Integer storeType, Disk disk) {
+		this.groupId = groupId;
 		this.storeType = storeType;
 		this.disk = disk;
+	}
+	
+	public Long getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(Long groupId) {
+		this.groupId = groupId;
 	}
 
 	public Integer getStoreType() {
