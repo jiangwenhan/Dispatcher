@@ -39,6 +39,8 @@ public final class Mappings {
 	public static final Set<Long> NO_SRC_NODES = Sets.newHashSet();
 	public static final Map<ConcretePair<Long, Long>, Long> SPEED_MAP = Maps.newConcurrentMap();
 	public static final Map<Long, PFidInfo> PFID_MAP = Maps.newConcurrentMap();
+	public static final Map<Long, Long> PFID_SRC_SRV_MAP = Maps.newConcurrentMap();
+	public static final Map<Long, Long> PFID_SRC_DISK_MAP = Maps.newConcurrentMap();
 
 	public static boolean increaseTaskOkRef(Long key) {
 		TaskReference taskRef = TASK_REFS.get(key);

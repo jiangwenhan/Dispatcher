@@ -409,8 +409,13 @@ public class Manager implements InitializingBean {
 				if (synTask.getSrcDiskId() == 0
 						|| synTask.getSrcSvrId() == 0) {
 					if (Mappings.PFID_MAP.containsKey(pfid)) {
-						// TODO: continue todo
+						synTask.setSrcSvrId(Mappings.PFID_SRC_SRV_MAP.get(pfid));
+						synTask.setSrcDiskId(Mappings.PFID_SRC_DISK_MAP.get(pfid));
 					}
+					// TODO: do some log
+					waitSrcMap.get(pfid).remove(synTask.getDestDiskId());
+					waitDispatchMap.get(pfid).put(synTask.getDestDiskId(), synTask);
+					synTaskQueue.add(synTask);
 				}
 			}
 			
@@ -644,15 +649,6 @@ public class Manager implements InitializingBean {
 		return storeDiskMap.get(pfid);
 	}
 	
-	private void run() {
-		while (true) {
-			while (!dispatchTaskQueue.isEmpty()) {
-				DispatchTask dispatchTask = dispatchTaskQueue.poll();
-				es.submit(new TaskConsumerCallable(this, dispatchTask));
-			}
-		}
-	}
-	
 	public static int getConfFileNum() {
 		return confFileNum;
 	}
@@ -675,6 +671,15 @@ public class Manager implements InitializingBean {
 
 	public static void setConfFileLimitSpeed(int confFileLimitSpeed) {
 		Manager.confFileLimitSpeed = confFileLimitSpeed;
+	}
+	
+	private void run() {
+		while (true) {
+			while (!dispatchTaskQueue.isEmpty()) {
+				DispatchTask dispatchTask = dispatchTaskQueue.poll();
+				es.submit(new TaskConsumerCallable(this, dispatchTask));
+			}
+		}
 	}
 
 	@Override
