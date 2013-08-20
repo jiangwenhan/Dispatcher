@@ -1,6 +1,6 @@
-package com.ku6.cdn.dispatcher.common.entity;
+package com.ku6.cdn.dispatcher.common.entity.utcc;
 
-import static com.ku6.cdn.dispatcher.common.Constrants.*;
+import static com.ku6.cdn.dispatcher.common.entity.utcc.Names.*;
 
 import java.sql.Date;
 
@@ -13,7 +13,7 @@ import javax.persistence.Table;
 
 
 @Entity
-@Table(name = "Task")
+@Table(name = TASK)
 public class Task {
 	
 	private Integer taskId;
@@ -66,7 +66,7 @@ public class Task {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = TASK_TASK_ID, length = 20, nullable = false)
+	@Column(name = T_TASK_ID, length = 20, nullable = false)
 	public Integer getTaskId() {
 		return taskId;
 	}
@@ -75,7 +75,7 @@ public class Task {
 		this.taskId = taskId;
 	}
 
-	@Column(name = TASK_TASK_CREATE_TIME, nullable = true, unique = false)
+	@Column(name = T_TASK_CREATE_TIME, nullable = true, unique = false)
 	public Date getTaskCreateTime() {
 		return taskCreateTime;
 	}
@@ -84,7 +84,7 @@ public class Task {
 		this.taskCreateTime = taskCreateTime;
 	}
 
-	@Column(name = TASK_VID, length = 11, nullable = true, unique = false)
+	@Column(name = T_VID, length = 11, nullable = true, unique = false)
 	public Integer getVid() {
 		return vid;
 	}
@@ -93,7 +93,7 @@ public class Task {
 		this.vid = vid;
 	}
 
-	@Column(name = TASK_SID, length = 20, nullable = true, unique = false)
+	@Column(name = T_SID, length = 20, nullable = true, unique = false)
 	public Integer getSid() {
 		return sid;
 	}
@@ -102,7 +102,7 @@ public class Task {
 		this.sid = sid;
 	}
 
-	@Column(name = TASK_UID, length = 11, nullable = true, unique = false)
+	@Column(name = T_UID, length = 11, nullable = true, unique = false)
 	public Integer getUid() {
 		return uid;
 	}
@@ -111,7 +111,7 @@ public class Task {
 		this.uid = uid;
 	}
 
-	@Column(name = TASK_SRC_DOMAIN, length = 20, nullable = true, unique = false)
+	@Column(name = T_SRC_DOMAIN, length = 20, nullable = true, unique = false)
 	public String getSrcDomain() {
 		return srcDomain;
 	}
@@ -120,7 +120,7 @@ public class Task {
 		this.srcDomain = srcDomain;
 	}
 
-	@Column(name = TASK_SRC_PATH, length = 1024, nullable = true, unique = false)
+	@Column(name = T_SRC_PATH, length = 1024, nullable = true, unique = false)
 	public String getSrcPath() {
 		return srcPath;
 	}
@@ -129,7 +129,7 @@ public class Task {
 		this.srcPath = srcPath;
 	}
 
-	@Column(name = TASK_UPLOAD_SERVER, nullable = true, unique = false)
+	@Column(name = T_UPLOAD_SERVER, nullable = true, unique = false)
 	public String getUploadServer() {
 		return uploadServer;
 	}
@@ -138,7 +138,7 @@ public class Task {
 		this.uploadServer = uploadServer;
 	}
 
-	@Column(name = TASK_DEST_DOMAIN, length = 8, nullable = true, unique = false)
+	@Column(name = T_DEST_DOMAIN, length = 8, nullable = true, unique = false)
 	public String getDestDomain() {
 		return destDomain;
 	}
@@ -147,7 +147,7 @@ public class Task {
 		this.destDomain = destDomain;
 	}
 
-	@Column(name = TASK_PRIORITY, length = 6, nullable = true, unique = false)
+	@Column(name = T_PRIORITY, length = 6, nullable = true, unique = false)
 	public Integer getPriority() {
 		return priority;
 	}
@@ -156,7 +156,7 @@ public class Task {
 		this.priority = priority;
 	}
 
-	@Column(name = TASK_VIDEO_BITRATE, length = 6, nullable = true, unique = false)
+	@Column(name = T_VIDEO_BITRATE, length = 6, nullable = true, unique = false)
 	public Integer getVideoBitrate() {
 		return videoBitrate;
 	}
@@ -165,7 +165,7 @@ public class Task {
 		this.videoBitrate = videoBitrate;
 	}
 
-	@Column(name = TASK_AUDIO_BITRATE, length = 6, nullable = true, unique = false)
+	@Column(name = T_AUDIO_BITRATE, length = 6, nullable = true, unique = false)
 	public Integer getAudioBitrate() {
 		return audioBitrate;
 	}
@@ -174,7 +174,7 @@ public class Task {
 		this.audioBitrate = audioBitrate;
 	}
 
-	@Column(name = TASK_WIDTH, length = 6, nullable = true, unique = false)
+	@Column(name = T_WIDTH, length = 6, nullable = true, unique = false)
 	public Integer getWidth() {
 		return width;
 	}
@@ -183,7 +183,7 @@ public class Task {
 		this.width = width;
 	}
 
-	@Column(name = TASK_FPS, length = 6, nullable = true, unique = false)
+	@Column(name = T_FPS, length = 6, nullable = true, unique = false)
 	public Integer getFps() {
 		return fps;
 	}
@@ -192,7 +192,7 @@ public class Task {
 		this.fps = fps;
 	}
 
-	@Column(name = TASK_ENCODE_TYPE, length = 6, nullable = true, unique = false)
+	@Column(name = T_ENCODE_TYPE, length = 6, nullable = true, unique = false)
 	public Integer getEncodeType() {
 		return encodeType;
 	}
@@ -201,7 +201,7 @@ public class Task {
 		this.encodeType = encodeType;
 	}
 
-	@Column(name = TASK_ENCODE_PREFER, nullable = true, unique = false)
+	@Column(name = T_ENCODE_PREFER, nullable = true, unique = false)
 	public String getEncodePrefer() {
 		return encodePrefer;
 	}
@@ -210,7 +210,7 @@ public class Task {
 		this.encodePrefer = encodePrefer;
 	}
 
-	@Column(name = TASK_EXTRA_ARGS, nullable = true, unique = false)
+	@Column(name = T_EXTRA_ARGS, nullable = true, unique = false)
 	public String getExtraArgs() {
 		return extraArgs;
 	}
@@ -219,7 +219,7 @@ public class Task {
 		this.extraArgs = extraArgs;
 	}
 
-	@Column(name = TASK_REGULATION, length = 16, nullable = true, unique = false)
+	@Column(name = T_REGULATION, length = 16, nullable = true, unique = false)
 	public String getRegulation() {
 		return regulation;
 	}
@@ -228,7 +228,7 @@ public class Task {
 		this.regulation = regulation;
 	}
 
-	@Column(name = TASK_WATERMARK, length = 6, nullable = true, unique = false)
+	@Column(name = T_WATERMARK, length = 6, nullable = true, unique = false)
 	public Integer getWatermark() {
 		return watermark;
 	}
@@ -237,7 +237,7 @@ public class Task {
 		this.watermark = watermark;
 	}
 
-	@Column(name = TASK_SERVER_PREFER, length = 32, nullable = true, unique = false)
+	@Column(name = T_SERVER_PREFER, length = 32, nullable = true, unique = false)
 	public String getServerPrefer() {
 		return serverPrefer;
 	}
@@ -246,7 +246,7 @@ public class Task {
 		this.serverPrefer = serverPrefer;
 	}
 
-	@Column(name = TASK_TRANSCODE_SERVER, length = 64, nullable = true, unique = false)
+	@Column(name = T_TRANSCODE_SERVER, length = 64, nullable = true, unique = false)
 	public String getTranscodeServer() {
 		return transcodeServer;
 	}
@@ -255,7 +255,7 @@ public class Task {
 		this.transcodeServer = transcodeServer;
 	}
 
-	@Column(name = TASK_TRANSCODE_START_TIME, nullable = true, unique = false)
+	@Column(name = T_TRANSCODE_START_TIME, nullable = true, unique = false)
 	public Date getTranscodeStartTime() {
 		return transcodeStartTime;
 	}
@@ -264,7 +264,7 @@ public class Task {
 		this.transcodeStartTime = transcodeStartTime;
 	}
 
-	@Column(name = TASK_TRANSCODE_FINISH_TIME, nullable = true, unique = false)
+	@Column(name = T_TRANSCODE_FINISH_TIME, nullable = true, unique = false)
 	public Date getTranscodeFinishTime() {
 		return transcodeFinishTime;
 	}
@@ -273,7 +273,7 @@ public class Task {
 		this.transcodeFinishTime = transcodeFinishTime;
 	}
 
-	@Column(name = TASK_TRANSCODE_STATUS, length = 6, nullable = true, unique = false)
+	@Column(name = T_TRANSCODE_STATUS, length = 6, nullable = true, unique = false)
 	public Integer getTranscodeStatus() {
 		return transcodeStatus;
 	}
@@ -282,7 +282,7 @@ public class Task {
 		this.transcodeStatus = transcodeStatus;
 	}
 
-	@Column(name = TASK_TRANSCODE_STATUS_DESC, nullable = true, unique = false)
+	@Column(name = T_TRANSCODE_STATUS_DESC, nullable = true, unique = false)
 	public String getTranscodeStatusDesc() {
 		return transcodeStatusDesc;
 	}
@@ -291,7 +291,7 @@ public class Task {
 		this.transcodeStatusDesc = transcodeStatusDesc;
 	}
 
-	@Column(name = TASK_PIC_PATH, length = 256, nullable = true, unique = false)
+	@Column(name = T_PIC_PATH, length = 256, nullable = true, unique = false)
 	public String getPicPath() {
 		return picPath;
 	}
@@ -300,7 +300,7 @@ public class Task {
 		this.picPath = picPath;
 	}
 
-	@Column(name = TASK_BIGPIC_PATH, length = 256, nullable = true, unique = false)
+	@Column(name = T_BIGPIC_PATH, length = 256, nullable = true, unique = false)
 	public String getBigpicPath() {
 		return bigpicPath;
 	}
@@ -309,7 +309,7 @@ public class Task {
 		this.bigpicPath = bigpicPath;
 	}
 
-	@Column(name = TASK_SEG_COUNT, length = 5, nullable = true, unique = false)
+	@Column(name = T_SEG_COUNT, length = 5, nullable = true, unique = false)
 	public Integer getSegCount() {
 		return segCount;
 	}
@@ -318,7 +318,7 @@ public class Task {
 		this.segCount = segCount;
 	}
 
-	@Column(name = TASK_PLAY_TIME, nullable = true, unique = false)
+	@Column(name = T_PLAY_TIME, nullable = true, unique = false)
 	public Integer getPlayTime() {
 		return playTime;
 	}
@@ -327,7 +327,7 @@ public class Task {
 		this.playTime = playTime;
 	}
 
-	@Column(name = TASK_SEG_TIME, nullable = true, unique = false)
+	@Column(name = T_SEG_TIME, nullable = true, unique = false)
 	public String getSegTime() {
 		return segTime;
 	}
@@ -336,7 +336,7 @@ public class Task {
 		this.segTime = segTime;
 	}
 
-	@Column(name = TASK_VSIZE, nullable = true, unique = false)
+	@Column(name = T_VSIZE, nullable = true, unique = false)
 	public String getVsize() {
 		return vsize;
 	}
@@ -345,7 +345,7 @@ public class Task {
 		this.vsize = vsize;
 	}
 
-	@Column(name = TASK_VIDEO_DOMAIN, nullable = true, unique = false)
+	@Column(name = T_VIDEO_DOMAIN, nullable = true, unique = false)
 	public String getVideoDomain() {
 		return videoDomain;
 	}
@@ -354,7 +354,7 @@ public class Task {
 		this.videoDomain = videoDomain;
 	}
 
-	@Column(name = TASK_VIDEO_PATH, nullable = true, unique = false)
+	@Column(name = T_VIDEO_PATH, nullable = true, unique = false)
 	public String getVideoPath() {
 		return videoPath;
 	}
@@ -363,7 +363,7 @@ public class Task {
 		this.videoPath = videoPath;
 	}
 
-	@Column(name = TASK_DISPATCH_STATUS, length = 6, nullable = true, unique = false)
+	@Column(name = T_DISPATCH_STATUS, length = 6, nullable = true, unique = false)
 	public Integer getDispatchStatus() {
 		return dispatchStatus;
 	}
@@ -372,7 +372,7 @@ public class Task {
 		this.dispatchStatus = dispatchStatus;
 	}
 
-	@Column(name = TASK_DISPATCH_SRC_IP, length = 20, nullable = true, unique = false)
+	@Column(name = T_DISPATCH_SRC_IP, length = 20, nullable = true, unique = false)
 	public String getDispatchSrcIp() {
 		return dispatchSrcIp;
 	}
@@ -381,7 +381,7 @@ public class Task {
 		this.dispatchSrcIp = dispatchSrcIp;
 	}
 
-	@Column(name = TASK_DISPATCH_START_TIME, nullable = true, unique = false)
+	@Column(name = T_DISPATCH_START_TIME, nullable = true, unique = false)
 	public Date getDispatchStartTime() {
 		return dispatchStartTime;
 	}
@@ -390,7 +390,7 @@ public class Task {
 		this.dispatchStartTime = dispatchStartTime;
 	}
 
-	@Column(name = TASK_DISPATCH_FINISH_TIME, nullable = true, unique = false)
+	@Column(name = T_DISPATCH_FINISH_TIME, nullable = true, unique = false)
 	public Date getDispatchFinishTime() {
 		return dispatchFinishTime;
 	}
@@ -399,7 +399,7 @@ public class Task {
 		this.dispatchFinishTime = dispatchFinishTime;
 	}
 
-	@Column(name = TASK_REPORT_STATUS, length = 6, nullable = true, unique = false)
+	@Column(name = T_REPORT_STATUS, length = 6, nullable = true, unique = false)
 	public Integer getReportStatus() {
 		return reportStatus;
 	}
@@ -408,7 +408,7 @@ public class Task {
 		this.reportStatus = reportStatus;
 	}
 
-	@Column(name = TASK_REPORT_START_TIME, nullable = true, unique = false)
+	@Column(name = T_REPORT_START_TIME, nullable = true, unique = false)
 	public Date getReportStartTime() {
 		return reportStartTime;
 	}
@@ -417,7 +417,7 @@ public class Task {
 		this.reportStartTime = reportStartTime;
 	}
 
-	@Column(name = TASK_REPORT_FINISH_TIME, nullable = true, unique = false)
+	@Column(name = T_REPORT_FINISH_TIME, nullable = true, unique = false)
 	public Date getReportFinishTime() {
 		return reportFinishTime;
 	}
@@ -426,7 +426,7 @@ public class Task {
 		this.reportFinishTime = reportFinishTime;
 	}
 
-	@Column(name = TASK_CHECK_STATUS, length = 6, nullable = true, unique = false)
+	@Column(name = T_CHECK_STATUS, length = 6, nullable = true, unique = false)
 	public Integer getCheckStatus() {
 		return checkStatus;
 	}
@@ -435,7 +435,7 @@ public class Task {
 		this.checkStatus = checkStatus;
 	}
 
-	@Column(name = TASK_CHECK_FAIL_REASON, length = 96, nullable = true, unique = false)
+	@Column(name = T_CHECK_FAIL_REASON, length = 96, nullable = true, unique = false)
 	public String getCheckFailReason() {
 		return checkFailReason;
 	}
@@ -444,7 +444,7 @@ public class Task {
 		this.checkFailReason = checkFailReason;
 	}
 
-	@Column(name = TASK_WAP_ARGS, nullable = true, unique = false)
+	@Column(name = T_WAP_ARGS, nullable = true, unique = false)
 	public String getWapArgs() {
 		return wapArgs;
 	}
@@ -453,7 +453,7 @@ public class Task {
 		this.wapArgs = wapArgs;
 	}
 
-	@Column(name = TASK_COVER_LOGO_AREA, length = 128, nullable = true, unique = false)
+	@Column(name = T_COVER_LOGO_AREA, length = 128, nullable = true, unique = false)
 	public String getCoverLogoArea() {
 		return coverLogoArea;
 	}
@@ -462,7 +462,7 @@ public class Task {
 		this.coverLogoArea = coverLogoArea;
 	}
 
-	@Column(name = TASK_AUDIT_RESULT, length = 4, nullable = true, unique = false)
+	@Column(name = T_AUDIT_RESULT, length = 4, nullable = true, unique = false)
 	public Integer getAuditResult() {
 		return auditResult;
 	}

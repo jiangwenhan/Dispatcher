@@ -8,8 +8,8 @@ import java.util.Map.Entry;
 
 import com.ku6.cdn.dispatcher.common.GroupNode;
 import com.ku6.cdn.dispatcher.common.SvrNode;
-import com.ku6.cdn.dispatcher.common.entity.GroupInfo;
-import com.ku6.cdn.dispatcher.common.entity.ServerInfo;
+import com.ku6.cdn.dispatcher.common.entity.system.GroupInfo;
+import com.ku6.cdn.dispatcher.common.entity.system.ServerInfo;
 
 public class GroupNodeBuilder implements Builder<GroupNode> {
 	

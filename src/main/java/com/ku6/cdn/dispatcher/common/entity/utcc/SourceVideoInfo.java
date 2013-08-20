@@ -1,19 +1,25 @@
-package com.ku6.cdn.dispatcher.common.entity;
+package com.ku6.cdn.dispatcher.common.entity.utcc;
+
+import static com.ku6.cdn.dispatcher.common.entity.utcc.Names.*;
 
 import java.sql.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.Table;
 
 
 @Entity
-@Table(name = "Source_Video_Info")
+@Table(name = SOURCE_VIDEO_INFO)
 public class SourceVideoInfo {
 
-	private Integer id;
-	private Integer vid;
-	private Integer sid;
-	private Integer uid;
+	private Long id;
+	private Long vid;
+	private Long sid;
+	private Long uid;
 	private Integer status;
 	private Integer playStatus;
 	private String cfrom;
@@ -24,11 +30,11 @@ public class SourceVideoInfo {
 	private Date uploadStartTime;
 	private Date uploadFinishTime;
 	private Integer uploadStatus;
-	private Integer uploadSpeed;
+	private Long uploadSpeed;
 	private Integer priority;
 	private String srcDomain;
 	private String srcPath;
-	private Integer duration;
+	private Long duration;
 	private String fileFormat;
 	private String videoFormat;
 	private Integer videoBitrate;
@@ -39,7 +45,7 @@ public class SourceVideoInfo {
 	private String transcodePrefer;
 	private Integer fps;
 	private String md5;
-	private Integer fileSize;
+	private Long fileSize;
 	private String allPref;
 	private Integer audioStreamCount;
 	private String audioStream;
@@ -57,38 +63,45 @@ public class SourceVideoInfo {
 	
 	public SourceVideoInfo() {}
 	
-	public Integer getId() {
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = SVI_ID, length = 20, nullable = false, unique = true)
+	public Long getId() {
 		return id;
 	}
 	
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	
-	public Integer getVid() {
+	@Column(name = SVI_VID, length = 11)
+	public Long getVid() {
 		return vid;
 	}
 	
-	public void setVid(Integer vid) {
+	public void setVid(Long vid) {
 		this.vid = vid;
 	}
 	
-	public Integer getSid() {
+	@Column(name = SVI_SID, length = 20)
+	public Long getSid() {
 		return sid;
 	}
 	
-	public void setSid(Integer sid) {
+	public void setSid(Long sid) {
 		this.sid = sid;
 	}
 	
-	public Integer getUid() {
+	@Column(name = SVI_UID, length = 11)
+	public Long getUid() {
 		return uid;
 	}
 	
-	public void setUid(Integer uid) {
+	public void setUid(Long uid) {
 		this.uid = uid;
 	}
 	
+	@Column(name = SVI_STATUS, length = 6)
 	public Integer getStatus() {
 		return status;
 	}
@@ -97,6 +110,7 @@ public class SourceVideoInfo {
 		this.status = status;
 	}
 	
+	@Column(name = SVI_PLAY_STATUS, length = 4)
 	public Integer getPlayStatus() {
 		return playStatus;
 	}
@@ -105,6 +119,7 @@ public class SourceVideoInfo {
 		this.playStatus = playStatus;
 	}
 	
+	@Column(name = SVI_CFROM)
 	public String getCfrom() {
 		return cfrom;
 	}
@@ -113,6 +128,7 @@ public class SourceVideoInfo {
 		this.cfrom = cfrom;
 	}
 	
+	@Column(name = SVI_CLIENT_IP)
 	public String getClientIp() {
 		return clientIp;
 	}
@@ -121,6 +137,7 @@ public class SourceVideoInfo {
 		this.clientIp = clientIp;
 	}
 	
+	@Column(name = SVI_TITLE)
 	public String getTitle() {
 		return title;
 	}
@@ -129,6 +146,7 @@ public class SourceVideoInfo {
 		this.title = title;
 	}
 	
+	@Column(name = SVI_UPLOAD_SERVER, nullable = false)
 	public String getUploadServer() {
 		return uploadServer;
 	}
@@ -137,6 +155,7 @@ public class SourceVideoInfo {
 		this.uploadServer = uploadServer;
 	}
 	
+	@Column(name = SVI_UPLOAD_CREATE_TIME)
 	public Date getUploadCreateTime() {
 		return uploadCreateTime;
 	}
@@ -145,6 +164,7 @@ public class SourceVideoInfo {
 		this.uploadCreateTime = uploadCreateTime;
 	}
 	
+	@Column(name = SVI_UPLOAD_START_TIME)
 	public Date getUploadStartTime() {
 		return uploadStartTime;
 	}
@@ -153,6 +173,7 @@ public class SourceVideoInfo {
 		this.uploadStartTime = uploadStartTime;
 	}
 	
+	@Column(name = SVI_UPLOAD_FINISH_TIME)
 	public Date getUploadFinishTime() {
 		return uploadFinishTime;
 	}
@@ -161,6 +182,7 @@ public class SourceVideoInfo {
 		this.uploadFinishTime = uploadFinishTime;
 	}
 	
+	@Column(name = SVI_UPLOAD_STATUS, length = 6)
 	public Integer getUploadStatus() {
 		return uploadStatus;
 	}
@@ -169,14 +191,16 @@ public class SourceVideoInfo {
 		this.uploadStatus = uploadStatus;
 	}
 	
-	public Integer getUploadSpeed() {
+	@Column(name = SVI_UPLOAD_SPEED, length = 11)
+	public Long getUploadSpeed() {
 		return uploadSpeed;
 	}
 	
-	public void setUploadSpeed(Integer uploadSpeed) {
+	public void setUploadSpeed(Long uploadSpeed) {
 		this.uploadSpeed = uploadSpeed;
 	}
 	
+	@Column(name = SVI_PRIORITY, length = 6)
 	public Integer getPriority() {
 		return priority;
 	}
@@ -185,6 +209,7 @@ public class SourceVideoInfo {
 		this.priority = priority;
 	}
 	
+	@Column(name = SVI_SRC_DOMAIN)
 	public String getSrcDomain() {
 		return srcDomain;
 	}
@@ -193,6 +218,7 @@ public class SourceVideoInfo {
 		this.srcDomain = srcDomain;
 	}
 	
+	@Column(name = SVI_SRC_PATH)
 	public String getSrcPath() {
 		return srcPath;
 	}
@@ -201,14 +227,16 @@ public class SourceVideoInfo {
 		this.srcPath = srcPath;
 	}
 	
-	public Integer getDuration() {
+	@Column(name = SVI_DURATION, length = 11)
+	public Long getDuration() {
 		return duration;
 	}
 	
-	public void setDuration(Integer duration) {
+	public void setDuration(Long duration) {
 		this.duration = duration;
 	}
 	
+	@Column(name = SVI_FILE_FORMAT)
 	public String getFileFormat() {
 		return fileFormat;
 	}
@@ -217,6 +245,7 @@ public class SourceVideoInfo {
 		this.fileFormat = fileFormat;
 	}
 	
+	@Column(name = SVI_VIDEO_FORMAT)
 	public String getVideoFormat() {
 		return videoFormat;
 	}
@@ -225,6 +254,7 @@ public class SourceVideoInfo {
 		this.videoFormat = videoFormat;
 	}
 	
+	@Column(name = SVI_VIDEO_BITRATE, length = 6)
 	public Integer getVideoBitrate() {
 		return videoBitrate;
 	}
@@ -233,6 +263,7 @@ public class SourceVideoInfo {
 		this.videoBitrate = videoBitrate;
 	}
 	
+	@Column(name = SVI_WIDTH, length = 6)
 	public Integer getWidth() {
 		return width;
 	}
@@ -241,6 +272,7 @@ public class SourceVideoInfo {
 		this.width = width;
 	}
 	
+	@Column(name = SVI_HEIGHT, length = 6)
 	public Integer getHeight() {
 		return height;
 	}
@@ -249,6 +281,7 @@ public class SourceVideoInfo {
 		this.height = height;
 	}
 	
+	@Column(name = SVI_PIXEL_SCALE)
 	public String getPixelScale() {
 		return pixelScale;
 	}
@@ -257,19 +290,25 @@ public class SourceVideoInfo {
 		this.pixelScale = pixelScale;
 	}
 	
+	@Column(name = SVI_DISPLAY_SCALE)
 	public String getDisplayScale() {
 		return displayScale;
 	}
+	
 	public void setDisplayScale(String displayScale) {
 		this.displayScale = displayScale;
 	}
+	
+	@Column(name = SVI_TRANSCODE_PREFER)
 	public String getTranscodePrefer() {
 		return transcodePrefer;
 	}
+	
 	public void setTranscodePrefer(String transcodePrefer) {
 		this.transcodePrefer = transcodePrefer;
 	}
 	
+	@Column(name = SVI_FPS, length = 6)
 	public Integer getFps() {
 		return fps;
 	}
@@ -278,6 +317,7 @@ public class SourceVideoInfo {
 		this.fps = fps;
 	}
 	
+	@Column(name = SVI_MD5)
 	public String getMd5() {
 		return md5;
 	}
@@ -286,14 +326,16 @@ public class SourceVideoInfo {
 		this.md5 = md5;
 	}
 	
-	public Integer getFileSize() {
+	@Column(name = SVI_FILE_SIZE, length = 20)
+	public Long getFileSize() {
 		return fileSize;
 	}
 	
-	public void setFileSize(Integer fileSize) {
+	public void setFileSize(Long fileSize) {
 		this.fileSize = fileSize;
 	}
 	
+	@Column(name = SVI_ALL_PREF)
 	public String getAllPref() {
 		return allPref;
 	}
@@ -302,6 +344,7 @@ public class SourceVideoInfo {
 		this.allPref = allPref;
 	}
 	
+	@Column(name = SVI_AUDIO_STREAM_COUNT, length = 6)
 	public Integer getAudioStreamCount() {
 		return audioStreamCount;
 	}
@@ -310,6 +353,7 @@ public class SourceVideoInfo {
 		this.audioStreamCount = audioStreamCount;
 	}
 	
+	@Column(name = SVI_AUDIO_STREAM)
 	public String getAudioStream() {
 		return audioStream;
 	}
@@ -318,6 +362,7 @@ public class SourceVideoInfo {
 		this.audioStream = audioStream;
 	}
 	
+	@Column(name = SVI_WATERMARK, length = 6)
 	public Integer getWatermark() {
 		return watermark;
 	}
@@ -326,6 +371,7 @@ public class SourceVideoInfo {
 		this.watermark = watermark;
 	}
 	
+	@Column(name = SVI_TRANSCODE_TASK_COUNT, length = 6)
 	public Integer getTranscodeTaskCount() {
 		return transcodeTaskCount;
 	}
@@ -334,6 +380,7 @@ public class SourceVideoInfo {
 		this.transcodeTaskCount = transcodeTaskCount;
 	}
 	
+	@Column(name = SVI_REPORT_ERR, length = 6)
 	public Integer getReportErr() {
 		return reportErr;
 	}
@@ -342,6 +389,7 @@ public class SourceVideoInfo {
 		this.reportErr = reportErr;
 	}
 	
+	@Column(name = SVI_EXTRA_ARGS)
 	public String getExtraArgs() {
 		return extraArgs;
 	}
@@ -350,6 +398,7 @@ public class SourceVideoInfo {
 		this.extraArgs = extraArgs;
 	}
 	
+	@Column(name = SVI_VIDEO_FROM_SITE)
 	public String getVideoFromSite() {
 		return videoFromSite;
 	}
@@ -358,6 +407,7 @@ public class SourceVideoInfo {
 		this.videoFromSite = videoFromSite;
 	}
 	
+	@Column(name = SVI_WAP_ARGS)
 	public String getWapArgs() {
 		return wapArgs;
 	}
@@ -366,6 +416,7 @@ public class SourceVideoInfo {
 		this.wapArgs = wapArgs;
 	}
 	
+	@Column(name = SVI_COVER_LOGO_AREA)
 	public String getCoverLogoArea() {
 		return coverLogoArea;
 	}
@@ -374,6 +425,7 @@ public class SourceVideoInfo {
 		this.coverLogoArea = coverLogoArea;
 	}
 	
+	@Column(name = SVI_NEED_AUDIT, length = 4)
 	public Integer getNeedAudit() {
 		return needAudit;
 	}
@@ -382,6 +434,7 @@ public class SourceVideoInfo {
 		this.needAudit = needAudit;
 	}
 	
+	@Column(name = SVI_AUDIT_RESULT, length = 4)
 	public Integer getAuditResult() {
 		return auditResult;
 	}
@@ -390,6 +443,7 @@ public class SourceVideoInfo {
 		this.auditResult = auditResult;
 	}
 	
+	@Column(name = SVI_AUDIT_FINISH_TIME)
 	public Date getAuditFinishTime() {
 		return auditFinishTime;
 	}
@@ -398,6 +452,7 @@ public class SourceVideoInfo {
 		this.auditFinishTime = auditFinishTime;
 	}
 	
+	@Column(name = SVI_ACTIVITY_ID)
 	public String getActivityId() {
 		return activityId;
 	}

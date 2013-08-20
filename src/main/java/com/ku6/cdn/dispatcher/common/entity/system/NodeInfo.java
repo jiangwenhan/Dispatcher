@@ -1,4 +1,4 @@
-package com.ku6.cdn.dispatcher.common.entity;
+package com.ku6.cdn.dispatcher.common.entity.system;
 
 import java.math.BigDecimal;
 import java.sql.Date;

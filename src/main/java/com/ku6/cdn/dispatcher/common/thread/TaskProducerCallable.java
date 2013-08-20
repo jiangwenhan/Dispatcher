@@ -7,46 +7,36 @@ import java.util.concurrent.Callable;
 
 import org.hibernate.Session;
 
+import com.ku6.cdn.dispatcher.Manager;
 import com.ku6.cdn.dispatcher.common.Task;
 import com.ku6.cdn.dispatcher.common.TaskReference;
 import com.ku6.cdn.dispatcher.common.TimeTask;
-import com.ku6.cdn.dispatcher.common.collection.TaskQueue;
-import com.ku6.cdn.dispatcher.common.collection.TimeTaskPriorityQueue;
-import com.ku6.cdn.dispatcher.common.collection.TimeTaskQueue;
-import com.ku6.cdn.dispatcher.common.resource.TranscodeServerResource;
 import com.ku6.cdn.dispatcher.common.util.Mappings;
 
-public class TaskCreatorCallable implements Callable<Void> {
+public class TaskProducerCallable implements Callable<Void> {
 	
-	private Session session;
+	private final Manager manager;
 	
-	public TaskCreatorCallable() {
+	public TaskProducerCallable(Manager manager) {
+		this.manager = manager;
 	}
 
 	@Override
 	public Void call() throws Exception {
-		createTasks();
+		createTasks(manager.getCdnSystemSessionFactory().getCurrentSession());
 		return null;
 	}
-	/**
-	 * In Object list:
-	 * [0] : sid
-	 * [1] : vid
-	 * [2] : taskId
-	 * [3] : videoDomain
-	 * [4] : videoPath
-	 * [5] : dispatchSrcIp
-	 * [6] : dispatchStatus
-	 * [7] : priority
-	 */
-	private void createTasks() {
-		String hql = "select sid, vid, taskId, videoDomain, videoPath, "
-				+ "dispatchSrcIp, dispatchStatus, priority "
-				+ "from Task "
-				+ "where dispatchStatus (1, 2)";
+	
+	@SuppressWarnings("rawtypes")
+	private void createTasks(Session session) {
 		Integer ri = STATS_OK;
 		String rv = "dispatch_ok";
-		Iterator iterator = session.createQuery(hql).list().iterator();
+		Iterator iterator = session.createQuery("select sid, vid, taskId, videoDomain, videoPath, "
+											  + "dispatchSrcIp, dispatchStatus, priority "
+											  + "from Task "
+											  + "where dispatchStatus (1, 2)")
+								   .list()
+								   .iterator();
 		while (iterator.hasNext()) {
 			Object[] tuple = (Object[]) iterator.next();
 			String path = (String) tuple[4];
@@ -76,11 +66,12 @@ public class TaskCreatorCallable implements Callable<Void> {
 													.setOkRef(0)
 													.setCompleteRef(0)
 													.setType(REPORT_ERROR));
-				TimeTaskQueue.push(timeTask);
+				manager.getTimeTaskQueue().add(timeTask);
 				continue;
 			}
-			if (!TranscodeServerResource.containsKey(srcIp) 
-					|| !TranscodeServerResource.get(srcIp)) {
+			if (!Mappings.SERVER_STATUS.containsKey(srcIp) 
+					|| !Mappings.SERVER_STATUS.get(srcIp)) {
+				// TODO: do some log about server status
 				TimeTask timeTask = new TimeTask();
 				timeTask.setType(TASK_ID_TYPE);
 				timeTask.setTaskId(taskId);
@@ -94,7 +85,7 @@ public class TaskCreatorCallable implements Callable<Void> {
 				timeTask.setEndTime(0);
 				timeTask.setStatus(STATUS_FAIL);
 				
-				TimeTaskQueue.push(timeTask);
+				manager.getTimeTaskQueue().add(timeTask);
 				continue;
 			}
 			if (Mappings.TASK_REFS.containsKey(taskId)) {
@@ -147,7 +138,7 @@ public class TaskCreatorCallable implements Callable<Void> {
 					Mappings.increaseTaskOkRef(taskId);
 				}
 				Mappings.increaseTaskCompleteRef(taskId);
-				TaskQueue.push(task);
+				manager.getTaskQueue().add(task);
 			}
 			TimeTask timeTask = new TimeTask();
 			timeTask.setType(TASK_ID_TYPE);
@@ -165,7 +156,7 @@ public class TaskCreatorCallable implements Callable<Void> {
 				Mappings.TASK_REFS.put(taskId, new TaskReference()
 													.setOkRef(0)
 													.setCompleteRef(0));
-				TimeTaskQueue.push(timeTask);
+				manager.getTimeTaskQueue().add(timeTask);
 			} else {
 				timeTask.setRunTs(System.currentTimeMillis() + TASK_ID_TIME);
 				timeTask.setStartTime(System.currentTimeMillis());
@@ -176,6 +167,10 @@ public class TaskCreatorCallable implements Callable<Void> {
 			}
 			
 		}
+	}
+
+	public Manager getManager() {
+		return manager;
 	}
 
 }

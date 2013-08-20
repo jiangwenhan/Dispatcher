@@ -14,11 +14,11 @@ public class ManagerTest {
 				"common.datasource.xml",
 				"common.hibernate.xml",
 				"common.dispatcher.xml");
-		context.getBean("manager");
+		Manager manager = (Manager) context.getBean("manager");
 
-		System.out.println(Manager.getCdnSystemSessionFactory());
-		System.out.println(Manager.getCdnDeliverySessionFactory());
-		System.out.println(Manager.getUtccSessionFactory());
+		System.out.println(manager.getCdnSystemSessionFactory());
+		System.out.println(manager.getCdnDeliverySessionFactory());
+		System.out.println(manager.getUtccSessionFactory());
 	}
 	
 }

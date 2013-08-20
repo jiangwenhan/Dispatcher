@@ -8,7 +8,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.ku6.cdn.dispatcher.Manager;
 import com.ku6.cdn.dispatcher.common.SynTask;
-import com.ku6.cdn.dispatcher.common.entity.PFidInfo;
+import com.ku6.cdn.dispatcher.common.entity.system.PFidInfo;
 import com.ku6.cdn.dispatcher.common.util.Mappings;
 
 public class SynTaskConsumerCallable implements Callable<Boolean> {
@@ -98,7 +98,7 @@ public class SynTaskConsumerCallable implements Callable<Boolean> {
 					  .append("NOW())");
 		}
 		
-		Manager.getCdnSystemSessionFactory().getCurrentSession().createSQLQuery(sqlBuilder.toString());
+		manager.getCdnSystemSessionFactory().getCurrentSession().createSQLQuery(sqlBuilder.toString());
 		
 		return true;
 	}

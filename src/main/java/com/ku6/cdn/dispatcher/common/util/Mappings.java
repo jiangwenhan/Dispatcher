@@ -8,12 +8,12 @@ import com.google.common.collect.Sets;
 import com.ku6.cdn.dispatcher.common.DiskOwner;
 import com.ku6.cdn.dispatcher.common.TaskReference;
 import com.ku6.cdn.dispatcher.common.collection.ConcretePair;
-import com.ku6.cdn.dispatcher.common.entity.DiskInfo;
-import com.ku6.cdn.dispatcher.common.entity.GroupInfo;
-import com.ku6.cdn.dispatcher.common.entity.HotServer;
-import com.ku6.cdn.dispatcher.common.entity.NodeInfo;
-import com.ku6.cdn.dispatcher.common.entity.PFidInfo;
-import com.ku6.cdn.dispatcher.common.entity.ServerInfo;
+import com.ku6.cdn.dispatcher.common.entity.system.DiskInfo;
+import com.ku6.cdn.dispatcher.common.entity.system.GroupInfo;
+import com.ku6.cdn.dispatcher.common.entity.system.HotServer;
+import com.ku6.cdn.dispatcher.common.entity.system.NodeInfo;
+import com.ku6.cdn.dispatcher.common.entity.system.PFidInfo;
+import com.ku6.cdn.dispatcher.common.entity.system.ServerInfo;
 
 public final class Mappings {
 	

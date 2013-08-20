@@ -1,6 +1,6 @@
 package com.ku6.cdn.dispatcher.common;
 
-import com.ku6.cdn.dispatcher.common.entity.DiskInfo;
+import com.ku6.cdn.dispatcher.common.entity.system.DiskInfo;
 
 public class DiskOwner {
 	

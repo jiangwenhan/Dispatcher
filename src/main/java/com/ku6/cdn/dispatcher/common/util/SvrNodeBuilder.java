@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 
 import com.ku6.cdn.dispatcher.common.DiskNode;
 import com.ku6.cdn.dispatcher.common.SvrNode;
-import com.ku6.cdn.dispatcher.common.entity.DiskInfo;
+import com.ku6.cdn.dispatcher.common.entity.system.DiskInfo;
 
 public class SvrNodeBuilder implements Builder<SvrNode> {
 	

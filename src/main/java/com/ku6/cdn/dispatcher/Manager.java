@@ -31,16 +31,18 @@ import com.ku6.cdn.dispatcher.common.DiskOwner;
 import com.ku6.cdn.dispatcher.common.DispatchTask;
 import com.ku6.cdn.dispatcher.common.GroupNode;
 import com.ku6.cdn.dispatcher.common.SynTask;
+import com.ku6.cdn.dispatcher.common.Task;
 import com.ku6.cdn.dispatcher.common.TaskStatus;
+import com.ku6.cdn.dispatcher.common.TimeTask;
 import com.ku6.cdn.dispatcher.common.collection.ConcretePriorityQueue;
 import com.ku6.cdn.dispatcher.common.collection.ConcretePair;
 import com.ku6.cdn.dispatcher.common.collection.FidSynTaskMap;
-import com.ku6.cdn.dispatcher.common.entity.DiskInfo;
-import com.ku6.cdn.dispatcher.common.entity.GroupInfo;
-import com.ku6.cdn.dispatcher.common.entity.HostSpeed;
-import com.ku6.cdn.dispatcher.common.entity.HotServer;
-import com.ku6.cdn.dispatcher.common.entity.NodeInfo;
-import com.ku6.cdn.dispatcher.common.entity.ServerInfo;
+import com.ku6.cdn.dispatcher.common.entity.system.DiskInfo;
+import com.ku6.cdn.dispatcher.common.entity.system.GroupInfo;
+import com.ku6.cdn.dispatcher.common.entity.system.HostSpeed;
+import com.ku6.cdn.dispatcher.common.entity.system.HotServer;
+import com.ku6.cdn.dispatcher.common.entity.system.NodeInfo;
+import com.ku6.cdn.dispatcher.common.entity.system.ServerInfo;
 import com.ku6.cdn.dispatcher.common.thread.TaskConsumerCallable;
 import com.ku6.cdn.dispatcher.common.util.Mappings;
 import com.ku6.cdn.dispatcher.common.util.SynTaskBuilder;
@@ -50,9 +52,9 @@ import com.ku6.cdn.dispatcher.common.util.TaskStatusBuilder;
 @Component
 public class Manager implements InitializingBean {
 	
-	private static SessionFactory cdnSystemSessionFactory;
-	private static SessionFactory cdnDeliverySessionFactory;
-	private static SessionFactory utccSessionFactory;
+	private SessionFactory cdnSystemSessionFactory;
+	private SessionFactory cdnDeliverySessionFactory;
+	private SessionFactory utccSessionFactory;
 	
 	private static int confFileNum = 80;
 	private static int confFileRate = 80;
@@ -97,6 +99,9 @@ public class Manager implements InitializingBean {
 	private final Map<Long, Long> pfidSrcSrvMap = Maps.newConcurrentMap();
 	private final Map<Long, Long> pfidSrcDiskMap = Maps.newConcurrentMap();
 	private final Map<Long, Map<Long, SynTask>> map = Maps.newConcurrentMap();
+	
+	private final Queue<Task> taskQueue = Queues.newConcurrentLinkedQueue();
+	private final Queue<TimeTask> timeTaskQueue = Queues.newConcurrentLinkedQueue();
 	
 	private void init(int sessionCount, Session... sessions) {
 		initIpDiskMapping(sessions[0]);
@@ -661,30 +666,30 @@ public class Manager implements InitializingBean {
 		return value;
 	}
 	
-	public static SessionFactory getCdnSystemSessionFactory() {
+	public SessionFactory getCdnSystemSessionFactory() {
 		return cdnSystemSessionFactory;
 	}
 
-	public static void setCdnSystemSessionFactory(
+	public void setCdnSystemSessionFactory(
 			SessionFactory cdnSystemSessionFactory) {
-		Manager.cdnSystemSessionFactory = cdnSystemSessionFactory;
+		this.cdnSystemSessionFactory = cdnSystemSessionFactory;
 	}
 
-	public static SessionFactory getUtccSessionFactory() {
+	public SessionFactory getUtccSessionFactory() {
 		return utccSessionFactory;
 	}
 
-	public static void setUtccSessionFactory(SessionFactory utccSessionFactory) {
-		Manager.utccSessionFactory = utccSessionFactory;
+	public void setUtccSessionFactory(SessionFactory utccSessionFactory) {
+		this.utccSessionFactory = utccSessionFactory;
 	}
 	
-	public static SessionFactory getCdnDeliverySessionFactory() {
+	public SessionFactory getCdnDeliverySessionFactory() {
 		return cdnDeliverySessionFactory;
 	}
 
-	public static void setCdnDeliverySessionFactory(
+	public void setCdnDeliverySessionFactory(
 			SessionFactory cdnDeliverySessionFactory) {
-		Manager.cdnDeliverySessionFactory = cdnDeliverySessionFactory;
+		this.cdnDeliverySessionFactory = cdnDeliverySessionFactory;
 	}
 
 	public boolean containsKeyInDispatchMap(long pfid) {
@@ -727,6 +732,14 @@ public class Manager implements InitializingBean {
 		return storeDiskMap.get(pfid);
 	}
 	
+	public Queue<Task> getTaskQueue() {
+		return taskQueue;
+	}
+
+	public Queue<TimeTask> getTimeTaskQueue() {
+		return timeTaskQueue;
+	}
+
 	public static int getConfFileNum() {
 		return confFileNum;
 	}

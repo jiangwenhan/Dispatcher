@@ -9,7 +9,7 @@ import org.hibernate.Session;
 
 import com.ku6.cdn.dispatcher.common.Task;
 import com.ku6.cdn.dispatcher.common.collection.TaskQueue;
-import com.ku6.cdn.dispatcher.common.entity.SourceVideoInfo;
+import com.ku6.cdn.dispatcher.common.entity.utcc.SourceVideoInfo;
 
 public class TaskCallable implements Callable<Void> {
 	
