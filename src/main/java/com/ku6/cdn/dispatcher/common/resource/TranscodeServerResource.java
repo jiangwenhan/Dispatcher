@@ -19,6 +19,7 @@ public class TranscodeServerResource {
 
 	public TranscodeServerResource() {
 		ses.scheduleWithFixedDelay(new Runnable() {
+			@SuppressWarnings("rawtypes")
 			@Override
 			public void run() {
 				Map<String, Boolean> exchange = Maps.newConcurrentMap();

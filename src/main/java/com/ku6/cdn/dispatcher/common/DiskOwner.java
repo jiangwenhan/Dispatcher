@@ -1,16 +1,16 @@
 package com.ku6.cdn.dispatcher.common;
 
-import com.ku6.cdn.dispatcher.common.entity.Disk;
+import com.ku6.cdn.dispatcher.common.entity.DiskInfo;
 
 public class DiskOwner {
 	
 	private Long groupId;
 	private Integer storeType;
-	private Disk disk;
+	private DiskInfo disk;
 	
 	public DiskOwner() {}
 	
-	public DiskOwner(Long groupId, Integer storeType, Disk disk) {
+	public DiskOwner(Long groupId, Integer storeType, DiskInfo disk) {
 		this.groupId = groupId;
 		this.storeType = storeType;
 		this.disk = disk;
@@ -32,11 +32,11 @@ public class DiskOwner {
 		this.storeType = storeType;
 	}
 
-	public Disk getDisk() {
+	public DiskInfo getDisk() {
 		return disk;
 	}
 
-	public void setDisk(Disk disk) {
+	public void setDisk(DiskInfo disk) {
 		this.disk = disk;
 	}
 

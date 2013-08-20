@@ -2,6 +2,7 @@ package com.ku6.cdn.dispatcher;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.ku6.cdn.dispatcher.common.Constrants.*;
+import static com.ku6.cdn.dispatcher.common.util.TypeUtil.castToLong;
 
 import java.util.Comparator;
 import java.util.Iterator;
@@ -12,9 +13,12 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
+import org.hibernate.classic.Session;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
@@ -31,12 +35,12 @@ import com.ku6.cdn.dispatcher.common.TaskStatus;
 import com.ku6.cdn.dispatcher.common.collection.ConcretePriorityQueue;
 import com.ku6.cdn.dispatcher.common.collection.ConcretePair;
 import com.ku6.cdn.dispatcher.common.collection.FidSynTaskMap;
-import com.ku6.cdn.dispatcher.common.entity.Disk;
-import com.ku6.cdn.dispatcher.common.entity.Group;
+import com.ku6.cdn.dispatcher.common.entity.DiskInfo;
+import com.ku6.cdn.dispatcher.common.entity.GroupInfo;
 import com.ku6.cdn.dispatcher.common.entity.HostSpeed;
 import com.ku6.cdn.dispatcher.common.entity.HotServer;
-import com.ku6.cdn.dispatcher.common.entity.Node;
-import com.ku6.cdn.dispatcher.common.entity.Server;
+import com.ku6.cdn.dispatcher.common.entity.NodeInfo;
+import com.ku6.cdn.dispatcher.common.entity.ServerInfo;
 import com.ku6.cdn.dispatcher.common.thread.TaskConsumerCallable;
 import com.ku6.cdn.dispatcher.common.util.Mappings;
 import com.ku6.cdn.dispatcher.common.util.SynTaskBuilder;
@@ -55,6 +59,7 @@ public class Manager implements InitializingBean {
 	private static int confFileLimitSpeed = 0;
 	
 	private final ExecutorService es = Executors.newFixedThreadPool(20);
+	private final ScheduledExecutorService ses = Executors.newScheduledThreadPool(20);
 	
 	private SourceSelector srcSelector;
 	
@@ -93,17 +98,90 @@ public class Manager implements InitializingBean {
 	private final Map<Long, Long> pfidSrcDiskMap = Maps.newConcurrentMap();
 	private final Map<Long, Map<Long, SynTask>> map = Maps.newConcurrentMap();
 	
-	public Manager() {
-		init();
-		run();
+	private void init(int sessionCount, Session... sessions) {
+		initIpDiskMapping(sessions[0]);
+		initIspMapping(sessions[0]);
+		initServerMapping(sessions[0]);
+//		srcSelector = new SourceSelector();
+//		srcSelector.setConfLimitSpeed(confFileLimitSpeed);
 	}
-	
-	private void init() {
-		initDiskMaps();
-		initNodesMaps();
-		initSpeed();
-		srcSelector = new SourceSelector();
-		srcSelector.setConfLimitSpeed(confFileLimitSpeed);
+
+	@SuppressWarnings("rawtypes")
+	private void initIpDiskMapping(final Session session) {
+		ses.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				Iterator iterator = session.createQuery("select diskInfo.diskId, serverInfo.ip "
+						  							  + "from ServerInfo serverInfo, DiskInfo diskInfo "
+						  							  + "where serverInfo.svrType = 1 "
+						  							  + "and diskInfo.svrId = serverInfo.svrId")
+						  				   .list()
+						  				   .iterator();
+				while (iterator.hasNext()) {
+					Object[] items = (Object[]) iterator.next();
+					if(items[0] != null && items[1] != null) {
+						Mappings.IP2DISK.put((String)items[1], (Long)items[0]);
+					}
+				}
+			}
+		}, 0, 5, TimeUnit.MINUTES);
+	}
+
+	@SuppressWarnings("rawtypes")
+	private void initIspMapping(final Session session) {
+		ses.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				Iterator iterator = session.createQuery("select groupInfo.ispId, diskInfo.diskId, serverInfo.nodeId "
+													  + "from GroupInfo groupInfo, NodeInfo nodeInfo, ServerInfo serverInfo, DiskInfo diskInfo "
+													  + "where diskInfo.svrId = serverInfo.svrId "
+													  + "and serverInfo.nodeId = nodeInfo.nodeId "
+													  + "and nodeInfo.groupId = groupInfo.groupId "
+													  + "and ("
+													  + "groupInfo.ispId = 1 "
+													  + "or groupInfo.ispId = 2 "
+													  + ")")
+										   .list()
+										   .iterator();
+				while (iterator.hasNext()) {
+					Object[] items = (Object[]) iterator.next();
+					Mappings.DISK2ISP.put(castToLong(items[0]), castToLong(items[1]));
+					Mappings.NODE2ISP.put(castToLong(items[2]), castToLong(items[1]));
+				}
+			}
+		}, 0, 5, TimeUnit.MINUTES);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void initServerMapping(final Session session) {
+		ses.scheduleWithFixedDelay(new Runnable() {
+			@Override
+			public void run() {
+				Iterator<ServerInfo> iterator = session.createQuery("from ServerInfo")
+													   .list()
+													   .iterator();
+				while (iterator.hasNext()) {
+					ServerInfo serverInfo = iterator.next();
+					if (serverInfo.getSvrType() == 1) {
+						if (serverInfo.getDispStatus() == 0 || serverInfo.getInUse() == 0) {
+							if (serverInfo.getIp() != null) {
+								Mappings.SERVER_STATUS.put(serverInfo.getIp(), false);
+							}
+							if (serverInfo.getIp2() != null) {
+								Mappings.SERVER_STATUS.put(serverInfo.getIp2(), false);
+							}
+						} else {
+							if (serverInfo.getIp() != null) {
+								Mappings.SERVER_STATUS.put(serverInfo.getIp(), true);
+							}
+							if (serverInfo.getIp2() != null) {
+								Mappings.SERVER_STATUS.put(serverInfo.getIp2(), true);
+							}
+						}
+					}
+				}
+			}
+		}, 0, 5, TimeUnit.MINUTES);
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -134,10 +212,10 @@ public class Manager implements InitializingBean {
 										  .iterator();
 		while (iterator.hasNext()) {
 			 Object[] row = (Object[]) iterator.next();
-			 Disk disk = (Disk) row[0];
-			 Server server = (Server) row[1];
-			 Node node = (Node) row[2];
-			 Group group = (Group) row[3];
+			 DiskInfo disk = (DiskInfo) row[0];
+			 ServerInfo server = (ServerInfo) row[1];
+			 NodeInfo node = (NodeInfo) row[2];
+			 GroupInfo group = (GroupInfo) row[3];
 			 if (disk.getDiskStatus() == COMMON_DISK_BAD
 					 || disk.getInUse() != COMMON_DISK_IN_USE
 					 || server.getDispStatus() == COMMON_SVR_BAD
@@ -175,7 +253,7 @@ public class Manager implements InitializingBean {
 												   .list()
 												   .iterator();
 		while (iterator.hasNext()) {
-			Group group = (Group) iterator.next();
+			GroupInfo group = (GroupInfo) iterator.next();
 			if (group.getGroupType() == COMMON_NORMAL_NODE_TYPE) {
 				Mappings.GROUPS.put(group.getGroupId(), group);
 			}
@@ -192,7 +270,7 @@ public class Manager implements InitializingBean {
 				   						  .list()
 				   						  .iterator();
 		while (iterator.hasNext()) {
-			Node node = (Node) iterator.next();
+			NodeInfo node = (NodeInfo) iterator.next();
 			Mappings.HOT_NODES.put(node.getNodeId(), node);
 			Mappings.COLD_NODES.put(node.getNodeId(), node);
 			Mappings.NODE_GROUP_MAP.put(node.getNodeId(), node.getGroupId());
@@ -205,7 +283,7 @@ public class Manager implements InitializingBean {
 										  .list()
 										  .iterator();
 		while (iterator.hasNext()) {
-			Node node = (Node) iterator.next();
+			NodeInfo node = (NodeInfo) iterator.next();
 			Mappings.NO_SRC_NODES.add(node.getNodeId());
 		}
 	}
@@ -684,7 +762,10 @@ public class Manager implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		this.init();
+		Session cdnSystemSession = cdnSystemSessionFactory.openSession();
+		Session cdnDeliverySession = cdnDeliverySessionFactory.openSession();
+		Session utccSession = utccSessionFactory.openSession();
+		this.init(3, cdnSystemSession, cdnDeliverySession, utccSession);
 	}
 	
 }

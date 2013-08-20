@@ -13,7 +13,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "tb_node_info")
-public class Node {
+public class NodeInfo {
 
 	private Long id;
 	private Long nodeId;
@@ -47,7 +47,7 @@ public class Node {
 	private Date modifyTime;
 	private String remark;
 
-	public Node() {}
+	public NodeInfo() {}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

@@ -18,6 +18,7 @@
 
 	<bean id="manager" class="com.ku6.cdn.dispatcher.Manager">
 		<property name="cdnSystemSessionFactory" ref="cdnSystemSessionFactory" />
+		<property name="cdnDeliverySessionFactory" ref="cdnDeliverySessionFactory" />
 		<property name="utccSessionFactory" ref="utccSessionFactory" />
 	</bean>
 

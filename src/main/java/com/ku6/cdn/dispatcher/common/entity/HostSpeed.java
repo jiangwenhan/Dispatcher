@@ -1,15 +1,26 @@
 package com.ku6.cdn.dispatcher.common.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 
 
 @Entity
+@IdClass(HostSpeed.class)
 @Table(name = "t_host_speed")
-public class HostSpeed {
+public class HostSpeed implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	@Id
 	private Long srcId;
+	@Id
 	private Long destId;
 	private Long speed;
 	

@@ -8,8 +8,8 @@ import java.util.Map.Entry;
 
 import com.ku6.cdn.dispatcher.common.GroupNode;
 import com.ku6.cdn.dispatcher.common.SvrNode;
-import com.ku6.cdn.dispatcher.common.entity.Group;
-import com.ku6.cdn.dispatcher.common.entity.Server;
+import com.ku6.cdn.dispatcher.common.entity.GroupInfo;
+import com.ku6.cdn.dispatcher.common.entity.ServerInfo;
 
 public class GroupNodeBuilder implements Builder<GroupNode> {
 	
@@ -25,7 +25,7 @@ public class GroupNodeBuilder implements Builder<GroupNode> {
 			return null;
 		}
 		GroupNode groupNode = new GroupNode();
-		Group group = Mappings.GROUPS.get(_groupId);
+		GroupInfo group = Mappings.GROUPS.get(_groupId);
 		_groupType = group.getGroupType();
 		_ispType = group.getIspId();
 		generateSvrNodeList(_groupId);
@@ -43,8 +43,8 @@ public class GroupNodeBuilder implements Builder<GroupNode> {
 	}
 	
 	private void generateSvrNodeList(long groupId) {
-		for (Entry<Long, Server> entry : Mappings.SERVERS.entrySet()) {
-			Server server = entry.getValue();
+		for (Entry<Long, ServerInfo> entry : Mappings.SERVERS.entrySet()) {
+			ServerInfo server = entry.getValue();
 			if (server.getInUse() == COMMON_SVR_IN_USE
 					&& server.getNginxStatus() == COMMON_SVR_OK
 					&& server.getDispStatus() == COMMON_SVR_OK

@@ -27,9 +27,26 @@
     	</property>
 		<property name="annotatedClasses">
 			<list>
+				<value>com.ku6.cdn.dispatcher.common.entity.DiskInfo</value>
+				<value>com.ku6.cdn.dispatcher.common.entity.GroupInfo</value>
+				<value>com.ku6.cdn.dispatcher.common.entity.HostSpeed</value>
 				<value>com.ku6.cdn.dispatcher.common.entity.HotServer</value>
+				<value>com.ku6.cdn.dispatcher.common.entity.NodeInfo</value>
+				<value>com.ku6.cdn.dispatcher.common.entity.PFidInfo</value>
+				<value>com.ku6.cdn.dispatcher.common.entity.ServerInfo</value>
 			</list>
 		</property>
+    </bean>
+    
+    <bean id="cdnDeliverySessionFactory"
+    	class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+    	<property name="dataSource" ref="cdnDeliveryDataSource" />
+    	<property name="hibernateProperties">
+    		<props>
+    			<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+    			<prop key="hibernate.show_sql">true</prop>
+    		</props>
+    	</property>
     </bean>
     
     <bean id="utccSessionFactory"
@@ -41,11 +58,14 @@
     			<prop key="hibernate.show_sql">true</prop>
     		</props>
     	</property>
+    	<!-- 
 		<property name="annotatedClasses">
 			<list>
-				<value>com.ku6.cdn.dispatcher.common.entity.Stock</value>
+				<value>com.ku6.cdn.dispatcher.common.entity.SourceVideoInfo</value>
+				<value>com.ku6.cdn.dispatcher.common.entity.Task</value>
 			</list>
 		</property>
+		 -->
     </bean>
 	
 </beans>

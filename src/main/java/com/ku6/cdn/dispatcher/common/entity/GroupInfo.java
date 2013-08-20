@@ -12,7 +12,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "tb_group_info")
-public class Group {
+public class GroupInfo {
 	
 	private Long id;
 	private Long groupId;
@@ -24,7 +24,7 @@ public class Group {
 	private Date modifyTime;
 	private String remark;
 	
-	public Group() {}
+	public GroupInfo() {}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

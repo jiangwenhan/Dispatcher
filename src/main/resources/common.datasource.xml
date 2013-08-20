@@ -25,6 +25,19 @@
 		<property name="maxIdleTime" value="300" />
 		<property name="checkoutTimeout" value="300" />
 	</bean>
+	
+	<bean id="cdnDeliveryDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="${jdbc.driverClassName}" />
+		<property name="jdbcUrl" value="${cdndelivery.jdbc.url}" />
+		<property name="user" value="${cdndelivery.jdbc.username}" />
+		<property name="password" value="${cdndelivery.jdbc.password}" />
+		<property name="maxPoolSize" value="100" />
+		<property name="minPoolSize" value="1" />
+		<property name="idleConnectionTestPeriod" value="60" />
+		<property name="maxIdleTime" value="300" />
+		<property name="checkoutTimeout" value="300" />
+	</bean>
 
 	<bean id="utccDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
 		destroy-method="close">

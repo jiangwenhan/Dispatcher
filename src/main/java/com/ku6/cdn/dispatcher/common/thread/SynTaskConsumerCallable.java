@@ -4,6 +4,8 @@ import static com.ku6.cdn.dispatcher.common.Constrants.*;
 
 import java.util.concurrent.Callable;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.ku6.cdn.dispatcher.Manager;
 import com.ku6.cdn.dispatcher.common.SynTask;
 import com.ku6.cdn.dispatcher.common.entity.PFidInfo;
@@ -34,6 +36,11 @@ public class SynTaskConsumerCallable implements Callable<Boolean> {
 			return false;
 		}
 		
+		String reportPath = StringUtils.stripStart(pFidInfo.getPfname(), "/");
+		String path = "/" + reportPath;
+		String destPath = Mappings.DISKS.get(synTask.getDestDiskId()).getDisk().getMount() + path;
+		StringBuilder sqlBuilder = new StringBuilder();
+		
 		if (synTask.getOpt() == OPT_SYN) {
 			if (!Mappings.DISKS.containsKey(synTask.getSrcDiskId())) {
 				// TODO: do some log
@@ -43,14 +50,61 @@ public class SynTaskConsumerCallable implements Callable<Boolean> {
 				// TODO: do some log
 				return false;
 			}
+			String srcPath = Mappings.DISKS.get(synTask.getSrcDiskId()).getDisk().getMount() + path;
+			String altSrcPath = Mappings.DISKS.containsKey(synTask.getAltSrcDiskId()) ? 
+					Mappings.DISKS.get(synTask.getAltSrcDiskId()).getDisk().getMount() + path : null;
+			
+			sqlBuilder.append("INSERT INTO t_tasks_2_")
+					  .append(synTask.getDestSvrId() % 256)
+					  .append("(pfid, md5, report_path, dest_disk_id, dest_svr_id, dest_path, ")
+					  .append("src_svr_id, src_path, alt_svr_id, alt_path, ")
+					  .append("weight, exp_speed, alt_exp_speed,priority,operation,level,")
+					  .append("task_type,task_status, create_time) ")
+					  .append("VALUES(")
+					  .append(synTask.getPfid() + ", ")
+					  .append("\"" + pFidInfo.getMd5() + "\", ")
+					  .append("\"" + reportPath + "\", ")
+					  .append(synTask.getDestDiskId() + ", ")
+					  .append(synTask.getDestSvrId() + ", ")
+					  .append("\"" + destPath + "\", ")
+					  .append(synTask.getSrcSvrId() + ", ")
+					  .append("\"" + srcPath + "\", ")
+					  .append(synTask.getAltSrcSvrId() + ", ")
+					  .append("\"" + altSrcPath + ", ")
+					  .append(synTask.getWeight() + ", ")
+					  .append(synTask.getSpeed() + ", ")
+					  .append(synTask.getAltSpeed() + ", ")
+					  .append(synTask.getPriority() + ", ")
+					  .append(synTask.getOpt() + ", ")
+					  .append(synTask.getLevel() + ", ")
+					  .append(0 + ", ")
+					  .append(1 + ", ")
+					  .append("NOW())");
+		} else if (synTask.getOpt() == OPT_DEL) {
+			sqlBuilder.append("INSERT INTO t_tasks_2_")
+					  .append(synTask.getDestSvrId() % 256)
+					  .append("(pfid,report_path, dest_disk_id, dest_svr_id, dest_path,")
+					  .append("priority,operation,task_type,task_status,create_time)")
+					  .append("VALUES(")
+					  .append(synTask.getPfid() + ", ")
+					  .append("\"" + reportPath + "\", ")
+					  .append(synTask.getDestDiskId() + ", ")
+					  .append(synTask.getDestSvrId() + ", ")
+					  .append("\"" + destPath + "\", ")
+					  .append(synTask.getPriority() + ", ")
+					  .append(synTask.getOpt() + ", ")
+					  .append(0 + ", ")
+					  .append(1 + ", ")
+					  .append("NOW())");
 		}
-		updateTask();
+		
+		Manager.getCdnSystemSessionFactory().getCurrentSession().createSQLQuery(sqlBuilder.toString());
 		
 		return true;
 	}
-	
-	private boolean updateTask() {
-		return false;
-	}
 
+	public Manager getManager() {
+		return manager;
+	}
+	
 }

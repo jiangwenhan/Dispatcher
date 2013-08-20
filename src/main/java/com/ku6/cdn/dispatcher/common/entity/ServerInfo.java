@@ -18,7 +18,7 @@ import javax.persistence.UniqueConstraint;
 		@UniqueConstraint(columnNames = "ip"),
 		@UniqueConstraint(columnNames = "ip2")
 })
-public class Server {
+public class ServerInfo {
 	
 	private Integer svrId;
 	private Integer svrType;
@@ -42,7 +42,7 @@ public class Server {
 	private BigDecimal rootUsg;
 	private Integer isCache;
 	
-	public Server() {}
+	public ServerInfo() {}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

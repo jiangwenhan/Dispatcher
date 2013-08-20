@@ -13,7 +13,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "tb_disk_info")
-public class Disk {
+public class DiskInfo {
 	
 	private Long id;
 	private Long diskId;
@@ -33,7 +33,7 @@ public class Disk {
 	private Date updateTime;
 	private Integer isCache;
 	
-	public Disk() {}
+	public DiskInfo() {}
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

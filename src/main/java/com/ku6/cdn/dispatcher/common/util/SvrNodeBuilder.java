@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 
 import com.ku6.cdn.dispatcher.common.DiskNode;
 import com.ku6.cdn.dispatcher.common.SvrNode;
-import com.ku6.cdn.dispatcher.common.entity.Disk;
+import com.ku6.cdn.dispatcher.common.entity.DiskInfo;
 
 public class SvrNodeBuilder implements Builder<SvrNode> {
 	
@@ -27,8 +27,8 @@ public class SvrNodeBuilder implements Builder<SvrNode> {
 		}
 		SvrNode svrNode = new SvrNode(_svrId);
 		Map<Long, Long> hotDiskMap = Mappings.HOT_DISK_MAPS.get(_svrId);
-		Map<Long, Disk> groupDiskMap = Mappings.GROUP_DISKS_MAPS.get(_svrId);
-		for (Entry<Long, Disk> entry : groupDiskMap.entrySet()) {
+		Map<Long, DiskInfo> groupDiskMap = Mappings.GROUP_DISKS_MAPS.get(_svrId);
+		for (Entry<Long, DiskInfo> entry : groupDiskMap.entrySet()) {
 			if (entry.getValue() == null)
 				continue;
 			if (entry.getValue().getInUse() == COMMON_DISK_IN_USE
@@ -48,7 +48,7 @@ public class SvrNodeBuilder implements Builder<SvrNode> {
 		return svrNode;
 	}
 	
-	private DiskNode generateDiskNode(Disk disk) {
+	private DiskNode generateDiskNode(DiskInfo disk) {
 		if (disk == null)
 			return null;
 		DiskNode diskNode = new DiskNode();
