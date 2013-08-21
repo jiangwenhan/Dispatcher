@@ -1,4 +1,4 @@
-package com.ku6.cdn.dispatcher.common.util;
+package com.ku6.cdn.dispatcher.common.util.builder.impl;
 
 import static com.ku6.cdn.dispatcher.common.Constrants.*;
 
@@ -9,6 +9,8 @@ import java.util.Map.Entry;
 import com.ku6.cdn.dispatcher.common.DiskNode;
 import com.ku6.cdn.dispatcher.common.SvrNode;
 import com.ku6.cdn.dispatcher.common.entity.system.DiskInfo;
+import com.ku6.cdn.dispatcher.common.util.Mappings;
+import com.ku6.cdn.dispatcher.common.util.builder.Builder;
 
 public class SvrNodeBuilder implements Builder<SvrNode> {
 	

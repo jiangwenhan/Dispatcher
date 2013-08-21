@@ -1,4 +1,4 @@
-package com.ku6.cdn.dispatcher.common.util;
+package com.ku6.cdn.dispatcher.common.util.builder.impl;
 
 import static com.ku6.cdn.dispatcher.common.Constrants.*;
 
@@ -10,6 +10,8 @@ import com.ku6.cdn.dispatcher.common.GroupNode;
 import com.ku6.cdn.dispatcher.common.SvrNode;
 import com.ku6.cdn.dispatcher.common.entity.system.GroupInfo;
 import com.ku6.cdn.dispatcher.common.entity.system.ServerInfo;
+import com.ku6.cdn.dispatcher.common.util.Mappings;
+import com.ku6.cdn.dispatcher.common.util.builder.Builder;
 
 public class GroupNodeBuilder implements Builder<GroupNode> {
 	

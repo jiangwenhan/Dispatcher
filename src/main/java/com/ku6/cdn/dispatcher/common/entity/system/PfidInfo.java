@@ -17,7 +17,7 @@ import com.ku6.cdn.dispatcher.common.entity.PersistenceObject;
 @Table(name = "pfid_info", uniqueConstraints = {
 		@UniqueConstraint(columnNames = "pfname")
 })
-public class PFidInfo extends PersistenceObject {
+public class PfidInfo extends PersistenceObject {
 	
 	/**
 	 * 
@@ -40,7 +40,7 @@ public class PFidInfo extends PersistenceObject {
 	private Integer enableUpdate;
 	private String source;
 	
-	public PFidInfo() {}
+	public PfidInfo() {}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

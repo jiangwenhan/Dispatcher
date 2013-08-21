@@ -1,6 +1,7 @@
-package com.ku6.cdn.dispatcher.common.util;
+package com.ku6.cdn.dispatcher.common.util.builder.impl;
 
 import com.ku6.cdn.dispatcher.common.TimeTask;
+import com.ku6.cdn.dispatcher.common.util.builder.Builder;
 
 public class TimeTaskBuilder implements Builder<TimeTask> {
 	

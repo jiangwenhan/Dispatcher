@@ -8,22 +8,22 @@ import org.apache.commons.lang.StringUtils;
 
 import com.ku6.cdn.dispatcher.Manager;
 import com.ku6.cdn.dispatcher.common.SynTask;
-import com.ku6.cdn.dispatcher.common.entity.system.PFidInfo;
+import com.ku6.cdn.dispatcher.common.entity.system.PfidInfo;
 import com.ku6.cdn.dispatcher.common.util.Mappings;
 
-public class SynTaskConsumerCallable implements Callable<Boolean> {
+public class SynTaskConsumerThread implements Callable<Boolean> {
 	
 	private final Manager manager;
 	private final SynTask synTask;
 	
-	public SynTaskConsumerCallable(Manager manager, SynTask synTask) {
+	public SynTaskConsumerThread(Manager manager, SynTask synTask) {
 		this.manager = manager;
 		this.synTask = synTask;
 	}
 
 	@Override
 	public Boolean call() throws Exception {
-		PFidInfo pFidInfo = Mappings.PFID_MAP.get(synTask.getPfid());
+		PfidInfo pFidInfo = Mappings.PFID_MAP.get(synTask.getPfid());
 		if (pFidInfo == null) {
 			// TODO: do some log
 			return false;

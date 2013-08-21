@@ -221,6 +221,13 @@ public final class Constrants {
 	// Dispatch status
 	public static final Integer DISPATCH_STATUS_OK = 3;
 	public static final Integer DISPATHC_STATUS_FAILED = 4;
+	
+	// Task dispatch status
+	public static final Integer TASK_DSP_UNKNOWN = -1;
+	// TODO: continue
+	//
+	//
+	//
 
 	private Constrants() {}
 }

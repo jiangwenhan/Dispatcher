@@ -8,7 +8,7 @@ import java.util.concurrent.Callable;
 import com.ku6.cdn.dispatcher.common.TimeTask;
 import com.ku6.cdn.dispatcher.common.collection.TimeTaskQueue;
 
-public class TimeTaskCallable implements Callable<Void> {
+public class TimeTaskThread implements Callable<Void> {
 
 	@Override
 	public Void call() throws Exception {

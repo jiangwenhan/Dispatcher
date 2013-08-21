@@ -43,11 +43,12 @@ import com.ku6.cdn.dispatcher.common.entity.system.HostSpeed;
 import com.ku6.cdn.dispatcher.common.entity.system.HotServer;
 import com.ku6.cdn.dispatcher.common.entity.system.NodeInfo;
 import com.ku6.cdn.dispatcher.common.entity.system.ServerInfo;
-import com.ku6.cdn.dispatcher.common.thread.DispatchTaskConsumerCallable;
-import com.ku6.cdn.dispatcher.common.thread.TaskProducerRunnable;
+import com.ku6.cdn.dispatcher.common.thread.DispatchTaskConsumerThread;
+import com.ku6.cdn.dispatcher.common.thread.TaskConsumerThread;
+import com.ku6.cdn.dispatcher.common.thread.TaskProducerThread;
 import com.ku6.cdn.dispatcher.common.util.Mappings;
-import com.ku6.cdn.dispatcher.common.util.SynTaskBuilder;
-import com.ku6.cdn.dispatcher.common.util.TaskStatusBuilder;
+import com.ku6.cdn.dispatcher.common.util.builder.impl.SynTaskBuilder;
+import com.ku6.cdn.dispatcher.common.util.builder.impl.TaskStatusBuilder;
 
 
 @Component
@@ -62,6 +63,7 @@ public class Manager implements InitializingBean {
 	private static int confFileLimitSpeed = 0;
 	
 	private final ExecutorService es = Executors.newFixedThreadPool(20);
+	private final ExecutorService tces = Executors.newFixedThreadPool(1);
 	private final ScheduledExecutorService ses = Executors.newScheduledThreadPool(20);
 	
 	private SourceSelector srcSelector;
@@ -385,7 +387,7 @@ public class Manager implements InitializingBean {
 					// TODO: do some log
 					return true;
 				}
-				completeQueue.add(new TaskStatusBuilder()
+				getCompleteQueue().add(new TaskStatusBuilder()
 											.pfid(pfid)
 											.status(state)
 											.build());
@@ -413,7 +415,7 @@ public class Manager implements InitializingBean {
 						// TODO: do some log
 						return true;
 					}
-					completeQueue.add(new TaskStatusBuilder()
+					getCompleteQueue().add(new TaskStatusBuilder()
 												.pfid(pfid)
 												.status(state)
 												.build());
@@ -750,6 +752,10 @@ public class Manager implements InitializingBean {
 		return timeTaskPriorityQueue;
 	}
 
+	public Queue<TaskStatus> getCompleteQueue() {
+		return completeQueue;
+	}
+
 	public static int getConfFileNum() {
 		return confFileNum;
 	}
@@ -775,11 +781,10 @@ public class Manager implements InitializingBean {
 	}
 	
 	private void run() {
-		ses.scheduleWithFixedDelay(new TaskProducerRunnable(this), 0, 30, TimeUnit.HOURS);
+		ses.scheduleWithFixedDelay(new TaskProducerThread(this), 0, 30, TimeUnit.HOURS);
 		while (true) {
-			while (!dispatchTaskQueue.isEmpty()) {
-				DispatchTask dispatchTask = dispatchTaskQueue.poll();
-				es.submit(new DispatchTaskConsumerCallable(this, dispatchTask));
+			while (!taskQueue.isEmpty()) {
+				tces.submit(new TaskConsumerThread(this));
 			}
 		}
 	}

@@ -11,15 +11,15 @@ import com.ku6.cdn.dispatcher.Manager;
 import com.ku6.cdn.dispatcher.common.TaskReference.Reference;
 import com.ku6.cdn.dispatcher.common.TimeTask;
 import com.ku6.cdn.dispatcher.common.util.Mappings;
-import com.ku6.cdn.dispatcher.common.util.TaskBuilder;
-import com.ku6.cdn.dispatcher.common.util.TaskReferenceBuilder;
-import com.ku6.cdn.dispatcher.common.util.TimeTaskBuilder;
+import com.ku6.cdn.dispatcher.common.util.builder.impl.TaskBuilder;
+import com.ku6.cdn.dispatcher.common.util.builder.impl.TaskReferenceBuilder;
+import com.ku6.cdn.dispatcher.common.util.builder.impl.TimeTaskBuilder;
 
-public class TaskProducerRunnable implements Runnable {
+public class TaskProducerThread implements Runnable {
 	
 	private final Manager manager;
 	
-	public TaskProducerRunnable(Manager manager) {
+	public TaskProducerThread(Manager manager) {
 		this.manager = manager;
 	}
 

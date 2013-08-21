@@ -1,8 +1,9 @@
-package com.ku6.cdn.dispatcher.common.util;
+package com.ku6.cdn.dispatcher.common.util.builder.impl;
 
 import static com.ku6.cdn.dispatcher.common.Constrants.*;
 
 import com.ku6.cdn.dispatcher.common.TaskReference;
+import com.ku6.cdn.dispatcher.common.util.builder.Builder;
 
 public class TaskReferenceBuilder implements Builder<TaskReference> {
 	

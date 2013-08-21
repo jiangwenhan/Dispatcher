@@ -1,8 +1,9 @@
-package com.ku6.cdn.dispatcher.common.util;
+package com.ku6.cdn.dispatcher.common.util.builder.impl;
 
 import java.sql.Date;
 
 import com.ku6.cdn.dispatcher.common.TccTask;
+import com.ku6.cdn.dispatcher.common.util.builder.Builder;
 
 
 public class TccTaskBuilder implements Builder<TccTask> {

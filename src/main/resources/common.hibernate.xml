@@ -32,7 +32,7 @@
 				<value>com.ku6.cdn.dispatcher.common.entity.system.HostSpeed</value>
 				<value>com.ku6.cdn.dispatcher.common.entity.system.HotServer</value>
 				<value>com.ku6.cdn.dispatcher.common.entity.system.NodeInfo</value>
-				<value>com.ku6.cdn.dispatcher.common.entity.system.PFidInfo</value>
+				<value>com.ku6.cdn.dispatcher.common.entity.system.PfidInfo</value>
 				<value>com.ku6.cdn.dispatcher.common.entity.system.ServerInfo</value>
 			</list>
 		</property>

@@ -12,12 +12,12 @@ import com.ku6.cdn.dispatcher.common.DispatchTask;
 import com.ku6.cdn.dispatcher.common.SynTask;
 import com.ku6.cdn.dispatcher.common.util.Mappings;
 
-public class DispatchTaskConsumerCallable implements Callable<Boolean> {
+public class DispatchTaskConsumerThread implements Callable<Boolean> {
 	
 	private final Manager manager;
 	private final DispatchTask dispatchTask;
 	
-	public DispatchTaskConsumerCallable(Manager manager, DispatchTask dispatchTask) {
+	public DispatchTaskConsumerThread(Manager manager, DispatchTask dispatchTask) {
 		this.manager = manager;
 		this.dispatchTask = dispatchTask;
 	}
