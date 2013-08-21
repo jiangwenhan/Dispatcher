@@ -10,13 +10,19 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import com.ku6.cdn.dispatcher.common.entity.PersistenceObject;
+
 
 @Entity
 @Table(name = "pfid_info", uniqueConstraints = {
 		@UniqueConstraint(columnNames = "pfname")
 })
-public class PFidInfo {
+public class PFidInfo extends PersistenceObject {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5354705642895453609L;
 	private Long pfid;
 	private String pfname;
 	private Long cfid;

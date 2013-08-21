@@ -9,12 +9,18 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.ku6.cdn.dispatcher.common.entity.PersistenceObject;
+
 
 
 @Entity
 @Table(name = "tb_disk_info")
-public class DiskInfo {
+public class DiskInfo extends PersistenceObject {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5023960811802755203L;
 	private Long id;
 	private Long diskId;
 	private Long gslbDiskId;

@@ -15,8 +15,8 @@ public class TimeTask {
 	private long runTs;
 	private long startTime;
 	private long endTime;
-	public int delay;
-	boolean bRunstat;
+	private int delay;
+	private boolean bRunstat;
 	
 	public TimeTask() {
 		this.taskId = -1;
@@ -143,6 +143,14 @@ public class TimeTask {
 
 	public void setbRunstat(boolean bRunstat) {
 		this.bRunstat = bRunstat;
+	}
+	
+	public synchronized void incDelay() {
+		++this.delay;
+	}
+	
+	public synchronized void decDelay() {
+		--this.delay;
 	}
 	
 }

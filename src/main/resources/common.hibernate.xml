@@ -27,13 +27,13 @@
     	</property>
 		<property name="annotatedClasses">
 			<list>
-				<value>com.ku6.cdn.dispatcher.common.entity.DiskInfo</value>
-				<value>com.ku6.cdn.dispatcher.common.entity.GroupInfo</value>
-				<value>com.ku6.cdn.dispatcher.common.entity.HostSpeed</value>
-				<value>com.ku6.cdn.dispatcher.common.entity.HotServer</value>
-				<value>com.ku6.cdn.dispatcher.common.entity.NodeInfo</value>
-				<value>com.ku6.cdn.dispatcher.common.entity.PFidInfo</value>
-				<value>com.ku6.cdn.dispatcher.common.entity.ServerInfo</value>
+				<value>com.ku6.cdn.dispatcher.common.entity.system.DiskInfo</value>
+				<value>com.ku6.cdn.dispatcher.common.entity.system.GroupInfo</value>
+				<value>com.ku6.cdn.dispatcher.common.entity.system.HostSpeed</value>
+				<value>com.ku6.cdn.dispatcher.common.entity.system.HotServer</value>
+				<value>com.ku6.cdn.dispatcher.common.entity.system.NodeInfo</value>
+				<value>com.ku6.cdn.dispatcher.common.entity.system.PFidInfo</value>
+				<value>com.ku6.cdn.dispatcher.common.entity.system.ServerInfo</value>
 			</list>
 		</property>
     </bean>
@@ -58,14 +58,12 @@
     			<prop key="hibernate.show_sql">true</prop>
     		</props>
     	</property>
-    	<!-- 
 		<property name="annotatedClasses">
 			<list>
-				<value>com.ku6.cdn.dispatcher.common.entity.SourceVideoInfo</value>
-				<value>com.ku6.cdn.dispatcher.common.entity.Task</value>
+				<value>com.ku6.cdn.dispatcher.common.entity.utcc.SourceVideoInfo</value>
+				<value>com.ku6.cdn.dispatcher.common.entity.utcc.Task</value>
 			</list>
 		</property>
-		 -->
     </bean>
 	
 </beans>

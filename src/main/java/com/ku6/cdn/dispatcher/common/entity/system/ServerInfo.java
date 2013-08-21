@@ -13,13 +13,19 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import com.ku6.cdn.dispatcher.common.entity.PersistenceObject;
+
 @Entity
 @Table(name = "tb_server_info", uniqueConstraints = {
 		@UniqueConstraint(columnNames = "ip"),
 		@UniqueConstraint(columnNames = "ip2")
 })
-public class ServerInfo {
+public class ServerInfo extends PersistenceObject {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3906006723717539015L;
 	private Integer svrId;
 	private Integer svrType;
 	private Integer nodeId;

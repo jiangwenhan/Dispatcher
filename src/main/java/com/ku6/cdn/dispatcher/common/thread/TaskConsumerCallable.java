@@ -3,61 +3,63 @@ package com.ku6.cdn.dispatcher.common.thread;
 import static com.ku6.cdn.dispatcher.common.Constrants.*;
 
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
-import com.google.common.collect.Lists;
 import com.ku6.cdn.dispatcher.Manager;
-import com.ku6.cdn.dispatcher.common.DispatchTask;
-import com.ku6.cdn.dispatcher.common.SynTask;
-import com.ku6.cdn.dispatcher.common.util.Mappings;
+import com.ku6.cdn.dispatcher.common.Task;
+import com.ku6.cdn.dispatcher.common.collection.TaskQueue;
+import com.ku6.cdn.dispatcher.common.entity.utcc.SourceVideoInfo;
 
-public class TaskConsumerCallable implements Callable<Boolean> {
+public class TaskConsumerCallable implements Callable<Void> {
 	
 	private final Manager manager;
-	private final DispatchTask dispatchTask;
 	
-	public TaskConsumerCallable(Manager manager, DispatchTask dispatchTask) {
+	public TaskConsumerCallable(Manager manager) {
 		this.manager = manager;
-		this.dispatchTask = dispatchTask;
 	}
 
 	@Override
-	public Boolean call() throws Exception {
-		if (manager.containsKeyInDispatchMap(dispatchTask.getPfid())) {
-			DispatchTask tempTask = manager.dispatchMapGet(dispatchTask.getPfid());
-			tempTask.setTaskNum(tempTask.getTaskNum() + 1);
-			manager.dispatchMapInsert(dispatchTask.getPfid(), tempTask);
-		}
-
-		List<SynTask> destTasks = Lists.newArrayList();
-		if (dispatchTask.getOpt() == OPT_SYN) {
-			return manager.createSynTask(dispatchTask, destTasks);
-		} else if (dispatchTask.getOpt() == OPT_DEL) {
-			manager.deleteSynTask(dispatchTask);
-			manager.checkMap(dispatchTask.getPfid(), 0);
-			return true;
-		}
-		
-		if (!manager.containsKeyInCompleteMap(dispatchTask.getPfid())) {
-			manager.checkMap(dispatchTask.getPfid(), 0);
-			return true;
-		}
-		
-		for (SynTask synTask : destTasks) {
-			manager.waitSrcMapGet(synTask.getPfid()).put(synTask.getDestDiskId(), synTask);
-			if (Mappings.DISKS.containsKey(synTask.getDestDiskId())
-					&& Mappings.DISKS.get(synTask.getDestDiskId()).getStoreType() == COMMON_NORMAL_NODE_TYPE) {
-				Set<Long> set = manager.storeDiskMapGet(synTask.getPfid());
-				set.add(synTask.getDestDiskId());
-				manager.storeDiskMapInsert(synTask.getPfid(), set);
+	public Void call() throws Exception {
+		while (!manager.getTaskQueue().isEmpty()) {
+			Task task = manager.getTaskQueue().poll();
+			if (task == null)
+				return null;
+			String customer = "ku6";
+			String storeType = "groupCold";
+			String uploadServer = "ku6";
+			Integer enableUpdate = 1;
+			Integer fileNum = 1;
+			List<SourceVideoInfo> infos = findSourceVideoInfoByTaskId(task.getVid());
+			if (infos == null || infos.size() == 0) {
+				TaskQueue.push(task);
+				continue;
 			}
+			SourceVideoInfo info = infos.get(0);
+			customer = info.getCfrom();
+			uploadServer = info.getUploadServer();
+			if (HOT_CFROM.contains(customer.toLowerCase())) {
+				enableUpdate = 0;
+				storeType = "node_hot";
+				fileNum = 2;
+			}
+			// TODO
+			// combine query string
+			// communicate with TCC
+			// handle the response
 		}
 		
-		manager.doTask(dispatchTask.getPfid(), COMMON_NORMAL_DO_TASK);
-		manager.checkMap(dispatchTask.getPfid(), 0);
-		
-		return true;
+		return null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private List<SourceVideoInfo> findSourceVideoInfoByTaskId(Long vid) {
+		String hql = "from SourceVideoInfo "
+				+ "where vid = " + vid;
+		List<SourceVideoInfo> infos = manager.getUtccSessionFactory()
+											 .getCurrentSession()
+											 .createQuery(hql)
+											 .list();
+		return infos;
 	}
 
 }

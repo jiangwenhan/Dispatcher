@@ -10,11 +10,17 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.ku6.cdn.dispatcher.common.entity.PersistenceObject;
+
 
 @Entity
 @Table(name = "tb_node_info")
-public class NodeInfo {
+public class NodeInfo extends PersistenceObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 867149055424342775L;
 	private Long id;
 	private Long nodeId;
 	private String nodeName;

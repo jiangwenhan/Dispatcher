@@ -9,11 +9,17 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.ku6.cdn.dispatcher.common.entity.PersistenceObject;
+
 
 @Entity
 @Table(name = "tb_group_info")
-public class GroupInfo {
+public class GroupInfo extends PersistenceObject {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9164705687770347585L;
 	private Long id;
 	private Long groupId;
 	private String groupName;

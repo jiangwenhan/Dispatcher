@@ -6,5 +6,9 @@ public class TypeUtil {
 		Number n = (Number) o;
 		return n.longValue();
 	}
+	
+	public static String castToString(Object o) {
+		return (String) o;
+	}
 
 }

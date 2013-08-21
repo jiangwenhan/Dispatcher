@@ -43,7 +43,8 @@ import com.ku6.cdn.dispatcher.common.entity.system.HostSpeed;
 import com.ku6.cdn.dispatcher.common.entity.system.HotServer;
 import com.ku6.cdn.dispatcher.common.entity.system.NodeInfo;
 import com.ku6.cdn.dispatcher.common.entity.system.ServerInfo;
-import com.ku6.cdn.dispatcher.common.thread.TaskConsumerCallable;
+import com.ku6.cdn.dispatcher.common.thread.DispatchTaskConsumerCallable;
+import com.ku6.cdn.dispatcher.common.thread.TaskProducerRunnable;
 import com.ku6.cdn.dispatcher.common.util.Mappings;
 import com.ku6.cdn.dispatcher.common.util.SynTaskBuilder;
 import com.ku6.cdn.dispatcher.common.util.TaskStatusBuilder;
@@ -65,12 +66,6 @@ public class Manager implements InitializingBean {
 	
 	private SourceSelector srcSelector;
 	
-	// node maps
-	private Map<Long, GroupNode> groupNodes;
-	private Map<Long, AreaNode> hotAreaNodes;
-	private Map<Long, AreaNode> coldAreaNodes;
-	
-	private final Map<Long, DispatchTask> dispatchTaskMap = Maps.newConcurrentMap();
 	private final ConcretePriorityQueue<DispatchTask> dispatchTaskQueue 
 		= new ConcretePriorityQueue<DispatchTask>(new Comparator<DispatchTask>() {
 
@@ -89,19 +84,29 @@ public class Manager implements InitializingBean {
 			}
 			
 		});
+	private final ConcretePriorityQueue<TimeTask> timeTaskPriorityQueue
+		= new ConcretePriorityQueue<TimeTask>(new Comparator<TimeTask>() {
+
+			@Override
+			public int compare(TimeTask o1, TimeTask o2) {
+				return (int)(o1.getRunTs() - o2.getRunTs());
+			}
+		});
+	private final Queue<TimeTask> timeTaskQueue = Queues.newConcurrentLinkedQueue();
+	private final Queue<Task> taskQueue = Queues.newConcurrentLinkedQueue();
+	private final Queue<TaskStatus> completeQueue = Queues.newConcurrentLinkedQueue();
 	
+	private Map<Long, GroupNode> groupNodes;
+	private Map<Long, AreaNode> hotAreaNodes;
+	private Map<Long, AreaNode> coldAreaNodes;
+	private final Map<Long, DispatchTask> dispatchTaskMap = Maps.newConcurrentMap();
 	private final Map<Long, FidSynTaskMap> waitSrcMap = Maps.newConcurrentMap();
 	private final Map<Long, FidSynTaskMap> waitDispatchMap = Maps.newConcurrentMap();
 	private final Map<Long, FidSynTaskMap> completeMap = Maps.newConcurrentMap();
-	private final Queue<TaskStatus> completeQueue = Queues.newConcurrentLinkedQueue();
 	private final Map<Long, Set<Long>> storeDiskMap = Maps.newConcurrentMap();
-	
 	private final Map<Long, Long> pfidSrcSrvMap = Maps.newConcurrentMap();
 	private final Map<Long, Long> pfidSrcDiskMap = Maps.newConcurrentMap();
 	private final Map<Long, Map<Long, SynTask>> map = Maps.newConcurrentMap();
-	
-	private final Queue<Task> taskQueue = Queues.newConcurrentLinkedQueue();
-	private final Queue<TimeTask> timeTaskQueue = Queues.newConcurrentLinkedQueue();
 	
 	private void init(int sessionCount, Session... sessions) {
 		initIpDiskMapping(sessions[0]);
@@ -109,6 +114,7 @@ public class Manager implements InitializingBean {
 		initServerMapping(sessions[0]);
 //		srcSelector = new SourceSelector();
 //		srcSelector.setConfLimitSpeed(confFileLimitSpeed);
+		run();
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -740,6 +746,10 @@ public class Manager implements InitializingBean {
 		return timeTaskQueue;
 	}
 
+	public ConcretePriorityQueue<TimeTask> getTimeTaskPriorityQueue() {
+		return timeTaskPriorityQueue;
+	}
+
 	public static int getConfFileNum() {
 		return confFileNum;
 	}
@@ -765,10 +775,11 @@ public class Manager implements InitializingBean {
 	}
 	
 	private void run() {
+		ses.scheduleWithFixedDelay(new TaskProducerRunnable(this), 0, 30, TimeUnit.HOURS);
 		while (true) {
 			while (!dispatchTaskQueue.isEmpty()) {
 				DispatchTask dispatchTask = dispatchTaskQueue.poll();
-				es.submit(new TaskConsumerCallable(this, dispatchTask));
+				es.submit(new DispatchTaskConsumerCallable(this, dispatchTask));
 			}
 		}
 	}

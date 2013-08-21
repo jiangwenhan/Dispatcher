@@ -16,11 +16,11 @@ import javax.persistence.Table;
 @Table(name = TASK)
 public class Task {
 	
-	private Integer taskId;
+	private Long taskId;
 	private Date taskCreateTime;
-	private Integer vid;
-	private Integer sid;
-	private Integer uid;
+	private Long vid;
+	private Long sid;
+	private Long uid;
 	private String srcDomain;
 	private String srcPath;
 	private String uploadServer;
@@ -44,7 +44,7 @@ public class Task {
 	private String picPath;
 	private String bigpicPath;
 	private Integer segCount;
-	private Integer playTime;
+	private Long playTime;
 	private String segTime;
 	private String vsize;
 	private String videoDomain;
@@ -67,11 +67,11 @@ public class Task {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = T_TASK_ID, length = 20, nullable = false)
-	public Integer getTaskId() {
+	public Long getTaskId() {
 		return taskId;
 	}
 
-	public void setTaskId(Integer taskId) {
+	public void setTaskId(Long taskId) {
 		this.taskId = taskId;
 	}
 
@@ -85,29 +85,29 @@ public class Task {
 	}
 
 	@Column(name = T_VID, length = 11, nullable = true, unique = false)
-	public Integer getVid() {
+	public Long getVid() {
 		return vid;
 	}
 
-	public void setVid(Integer vid) {
+	public void setVid(Long vid) {
 		this.vid = vid;
 	}
 
 	@Column(name = T_SID, length = 20, nullable = true, unique = false)
-	public Integer getSid() {
+	public Long getSid() {
 		return sid;
 	}
 
-	public void setSid(Integer sid) {
+	public void setSid(Long sid) {
 		this.sid = sid;
 	}
 
 	@Column(name = T_UID, length = 11, nullable = true, unique = false)
-	public Integer getUid() {
+	public Long getUid() {
 		return uid;
 	}
 
-	public void setUid(Integer uid) {
+	public void setUid(Long uid) {
 		this.uid = uid;
 	}
 
@@ -319,11 +319,11 @@ public class Task {
 	}
 
 	@Column(name = T_PLAY_TIME, nullable = true, unique = false)
-	public Integer getPlayTime() {
+	public Long getPlayTime() {
 		return playTime;
 	}
 
-	public void setPlayTime(Integer playTime) {
+	public void setPlayTime(Long playTime) {
 		this.playTime = playTime;
 	}
 

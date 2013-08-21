@@ -6,7 +6,6 @@ import static com.ku6.cdn.dispatcher.common.util.Mappings.*;
 import java.util.concurrent.Callable;
 
 import com.ku6.cdn.dispatcher.common.TimeTask;
-import com.ku6.cdn.dispatcher.common.collection.TimeTaskPriorityQueue;
 import com.ku6.cdn.dispatcher.common.collection.TimeTaskQueue;
 
 public class TimeTaskCallable implements Callable<Void> {
@@ -41,7 +40,7 @@ public class TimeTaskCallable implements Callable<Void> {
 				Integer type = TASK_REFS.get(timeTask.getTaskId()).getType();
 				boolean brepair = false;
 				if (diff / DELAY_TIME == timeTask.getDelay()) {
-					timeTask.delay++;
+					timeTask.incDelay();
 					brepair = true;
 				}
 				if (type == REPORT_RUNING_COMPLETE /*&& IsDispatchOK2*/) {
