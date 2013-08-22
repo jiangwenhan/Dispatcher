@@ -1,7 +1,6 @@
 package com.ku6.cdn.dispatcher.common.thread;
 
 import static com.ku6.cdn.dispatcher.common.Constrants.*;
-import static com.ku6.cdn.dispatcher.common.util.TypeUtil.*;
 
 import java.util.Iterator;
 

@@ -198,6 +198,8 @@ public final class Constrants {
 	public static final Integer COMMON_NORMAL_DO_TASK = 1;
 	public static final Integer COMMON_FULL_DO_TASK = 2;
 	
+	public static final Integer COMMON_STORE_UNKNOWN = 0;
+	
 	// Global Settings
 	public static final Long MIN_DISK_SIZE = 5L;
 	public static final Integer LEFT_SIZE_INIT_TYPE = 1;
@@ -224,10 +226,18 @@ public final class Constrants {
 	
 	// Task dispatch status
 	public static final Integer TASK_DSP_UNKNOWN = -1;
-	// TODO: continue
-	//
-	//
-	//
+	public static final Integer TASK_DSP_NOT_FOUND = 404;
+	public static final Integer TASK_DSP_READ_SRC_FAILED = 500;
+	public static final Integer TASK_DSP_CONN_FAILED = 502;
+	public static final Integer TASK_DSP_SRC_MD5_INVALID=700;
+	public static final Integer TASK_DSP_FILE_PART=409;
+	public static final Integer TASK_DSP_WRITE_FAILED=405;
+	public static final Integer TASK_DSP_IO_ERROR=501;
+	public static final Integer TASK_DSP_COMU_EXP=401;
+	public static final Integer TASK_DSP_SER_BUSY=403;
+	public static final Integer TASK_DSP_READ_FAILED=408;
+	public static final Integer TASK_DSP_PARSE_FAILED=600;
+	public static final Integer TASK_ALREADY_EXIST = 202;
 
 	private Constrants() {}
 }

@@ -26,10 +26,10 @@ public class ServerInfo extends PersistenceObject {
 	 * 
 	 */
 	private static final long serialVersionUID = 3906006723717539015L;
-	private Integer svrId;
+	private Long svrId;
 	private Integer svrType;
-	private Integer nodeId;
-	private Integer groupId;
+	private Long nodeId;
+	private Long groupId;
 	private String ip;
 	private String ip2;
 	private Integer inUse;
@@ -53,11 +53,11 @@ public class ServerInfo extends PersistenceObject {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = SERVER_SVR_ID, length = 11, nullable = false, unique = true)
-	public Integer getSvrId() {
+	public Long getSvrId() {
 		return svrId;
 	}
 
-	public void setSvrId(Integer svrId) {
+	public void setSvrId(Long svrId) {
 		this.svrId = svrId;
 	}
 
@@ -71,21 +71,21 @@ public class ServerInfo extends PersistenceObject {
 	}
 
 	@Column(name = SERVER_NODE_ID, length = 11, nullable = true, unique = false)
-	public Integer getNodeId() {
+	public Long getNodeId() {
 		return nodeId;
 	}
 
 	
-	public void setNodeId(Integer nodeId) {
+	public void setNodeId(Long nodeId) {
 		this.nodeId = nodeId;
 	}
 
 	@Column(name = SERVER_GROUP_ID, length = 11, nullable = true, unique = false)
-	public Integer getGroupId() {
+	public Long getGroupId() {
 		return groupId;
 	}
 
-	public void setGroupId(Integer groupId) {
+	public void setGroupId(Long groupId) {
 		this.groupId = groupId;
 	}
 

@@ -33,17 +33,19 @@ import com.ku6.cdn.dispatcher.common.GroupNode;
 import com.ku6.cdn.dispatcher.common.SynTask;
 import com.ku6.cdn.dispatcher.common.Task;
 import com.ku6.cdn.dispatcher.common.TaskStatus;
+import com.ku6.cdn.dispatcher.common.TaskTimeout;
 import com.ku6.cdn.dispatcher.common.TimeTask;
 import com.ku6.cdn.dispatcher.common.collection.ConcretePriorityQueue;
 import com.ku6.cdn.dispatcher.common.collection.ConcretePair;
 import com.ku6.cdn.dispatcher.common.collection.FidSynTaskMap;
+import com.ku6.cdn.dispatcher.common.collection.PriorityQueue;
 import com.ku6.cdn.dispatcher.common.entity.system.DiskInfo;
 import com.ku6.cdn.dispatcher.common.entity.system.GroupInfo;
 import com.ku6.cdn.dispatcher.common.entity.system.HostSpeed;
 import com.ku6.cdn.dispatcher.common.entity.system.HotServer;
 import com.ku6.cdn.dispatcher.common.entity.system.NodeInfo;
 import com.ku6.cdn.dispatcher.common.entity.system.ServerInfo;
-import com.ku6.cdn.dispatcher.common.thread.DispatchTaskConsumerThread;
+import com.ku6.cdn.dispatcher.common.thread.DispatchTaskProducerThread;
 import com.ku6.cdn.dispatcher.common.thread.TaskConsumerThread;
 import com.ku6.cdn.dispatcher.common.thread.TaskProducerThread;
 import com.ku6.cdn.dispatcher.common.util.Mappings;
@@ -65,10 +67,11 @@ public class Manager implements InitializingBean {
 	private final ExecutorService es = Executors.newFixedThreadPool(20);
 	private final ExecutorService tces = Executors.newFixedThreadPool(1);
 	private final ScheduledExecutorService ses = Executors.newScheduledThreadPool(20);
+	private final ScheduledExecutorService dtpSes = Executors.newScheduledThreadPool(1);
 	
 	private SourceSelector srcSelector;
 	
-	private final ConcretePriorityQueue<DispatchTask> dispatchTaskQueue 
+	private final PriorityQueue<DispatchTask> dispatchTaskQueue 
 		= new ConcretePriorityQueue<DispatchTask>(new Comparator<DispatchTask>() {
 
 			@Override
@@ -77,7 +80,7 @@ public class Manager implements InitializingBean {
 			}
 			
 		});
-	private final ConcretePriorityQueue<SynTask> synTaskQueue
+	private final PriorityQueue<SynTask> synTaskQueue
 		= new ConcretePriorityQueue<SynTask>(new Comparator<SynTask>() {
 
 			@Override
@@ -86,12 +89,20 @@ public class Manager implements InitializingBean {
 			}
 			
 		});
-	private final ConcretePriorityQueue<TimeTask> timeTaskPriorityQueue
+	private final PriorityQueue<TimeTask> timeTaskPriorityQueue
 		= new ConcretePriorityQueue<TimeTask>(new Comparator<TimeTask>() {
 
 			@Override
 			public int compare(TimeTask o1, TimeTask o2) {
 				return (int)(o1.getRunTs() - o2.getRunTs());
+			}
+		});
+	private final PriorityQueue<TaskTimeout> taskTimeoutPriorityQueue
+		= new ConcretePriorityQueue<TaskTimeout>(new Comparator<TaskTimeout>() {
+
+			@Override
+			public int compare(TaskTimeout o1, TaskTimeout o2) {
+				return (int)(o2.getTimeout() - o1.getTimeout());
 			}
 		});
 	private final Queue<TimeTask> timeTaskQueue = Queues.newConcurrentLinkedQueue();
@@ -748,12 +759,28 @@ public class Manager implements InitializingBean {
 		return timeTaskQueue;
 	}
 
-	public ConcretePriorityQueue<TimeTask> getTimeTaskPriorityQueue() {
+	public PriorityQueue<TimeTask> getTimeTaskPriorityQueue() {
 		return timeTaskPriorityQueue;
 	}
 
 	public Queue<TaskStatus> getCompleteQueue() {
 		return completeQueue;
+	}
+
+	public Map<Long, FidSynTaskMap> getCompleteMap() {
+		return completeMap;
+	}
+
+	public PriorityQueue<DispatchTask> getDispatchTaskQueue() {
+		return dispatchTaskQueue;
+	}
+
+	public Map<Long, DispatchTask> getDispatchTaskMap() {
+		return dispatchTaskMap;
+	}
+
+	public PriorityQueue<TaskTimeout> getTaskTimeoutPriorityQueue() {
+		return taskTimeoutPriorityQueue;
 	}
 
 	public static int getConfFileNum() {
@@ -782,6 +809,7 @@ public class Manager implements InitializingBean {
 	
 	private void run() {
 		ses.scheduleWithFixedDelay(new TaskProducerThread(this), 0, 30, TimeUnit.HOURS);
+		dtpSes.scheduleWithFixedDelay(new DispatchTaskProducerThread(this), 0, 30, TimeUnit.SECONDS);
 		while (true) {
 			while (!taskQueue.isEmpty()) {
 				tces.submit(new TaskConsumerThread(this));

@@ -38,7 +38,7 @@ public class TaskConsumerThread implements Callable<Void> {
 			if (task == null)
 				return;
 			String customer = "ku6";
-			String storeType = "groupCold";
+			String storeType = "group_cold";
 			String uploadServer = "ku6";
 			Integer enableUpdate = 1;
 			Integer fileNum = 1;
