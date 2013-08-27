@@ -1,5 +1,7 @@
 package com.ku6.cdn.dispatcher.common;
 
+import static com.ku6.cdn.dispatcher.common.Constrants.*;
+
 import java.util.List;
 
 
@@ -13,6 +15,17 @@ public class GroupNode {
 	
 	public void createTask() {
 		
+	}
+	
+	public void update(long modSize) {
+		long startNum = 1;
+		for (SvrNode svrNode : svrList) {
+			svrNode.update(startNum, modSize, LEFT_SIZE_INIT_TYPE);
+			if (svrNode.isEnable()) {
+				startNum = svrNode.getHigher() + 1;
+				modNum += (svrNode.getHigher() - svrNode.getLower() + 1);
+			}
+		}
 	}
 
 	public long getGroupId() {

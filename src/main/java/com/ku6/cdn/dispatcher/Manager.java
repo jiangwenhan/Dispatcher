@@ -1,6 +1,5 @@
 package com.ku6.cdn.dispatcher;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.ku6.cdn.dispatcher.common.Constrants.*;
 import static com.ku6.cdn.dispatcher.common.util.TypeUtil.castToLong;
 
@@ -50,7 +49,6 @@ import com.ku6.cdn.dispatcher.common.thread.TaskConsumerThread;
 import com.ku6.cdn.dispatcher.common.thread.TaskProducerThread;
 import com.ku6.cdn.dispatcher.common.util.Mappings;
 import com.ku6.cdn.dispatcher.common.util.builder.impl.SynTaskBuilder;
-import com.ku6.cdn.dispatcher.common.util.builder.impl.TaskStatusBuilder;
 
 
 @Component
@@ -60,9 +58,10 @@ public class Manager implements InitializingBean {
 	private SessionFactory cdnDeliverySessionFactory;
 	private SessionFactory utccSessionFactory;
 	
-	private static int confFileNum = 80;
-	private static int confFileRate = 80;
-	private static int confFileLimitSpeed = 0;
+	private int confFileNum = 80;
+	private int confFileRate = 80;
+	private int confFileLimitSpeed = 0;
+	private List<Long> confNodes = Lists.newLinkedList();
 	
 	private final ExecutorService es = Executors.newFixedThreadPool(20);
 	private final ExecutorService tces = Executors.newFixedThreadPool(1);
@@ -109,9 +108,6 @@ public class Manager implements InitializingBean {
 	private final Queue<Task> taskQueue = Queues.newConcurrentLinkedQueue();
 	private final Queue<TaskStatus> completeQueue = Queues.newConcurrentLinkedQueue();
 	
-	private Map<Long, GroupNode> groupNodes;
-	private Map<Long, AreaNode> hotAreaNodes;
-	private Map<Long, AreaNode> coldAreaNodes;
 	private final Map<Long, DispatchTask> dispatchTaskMap = Maps.newConcurrentMap();
 	private final Map<Long, FidSynTaskMap> waitSrcMap = Maps.newConcurrentMap();
 	private final Map<Long, FidSynTaskMap> waitDispatchMap = Maps.newConcurrentMap();
@@ -119,7 +115,6 @@ public class Manager implements InitializingBean {
 	private final Map<Long, Set<Long>> storeDiskMap = Maps.newConcurrentMap();
 	private final Map<Long, Long> pfidSrcSrvMap = Maps.newConcurrentMap();
 	private final Map<Long, Long> pfidSrcDiskMap = Maps.newConcurrentMap();
-	private final Map<Long, Map<Long, SynTask>> map = Maps.newConcurrentMap();
 	
 	private void init(int sessionCount, Session... sessions) {
 		initIpDiskMapping(sessions[0]);
@@ -312,10 +307,6 @@ public class Manager implements InitializingBean {
 		}
 	}
 	
-	private void initGroupNodes() {
-		
-	}
-	
 	@SuppressWarnings("rawtypes")
 	private void initSpeed() {
 		Iterator iterator = cdnSystemSessionFactory.getCurrentSession()
@@ -328,22 +319,6 @@ public class Manager implements InitializingBean {
 																hostSpeed.getSrcId()), 
 																hostSpeed.getSpeed());
 		}
-	}
-	
-	private boolean addTask(DispatchTask task, long srcSvr, long srcDisk) {
-		checkNotNull(task, "DispatchTask");
-		if (task.getMd5() == null) {
-			return false;
-		}
-		// TODO: add into syn_task
-		
-		pfidSrcSrvMap.put(task.getPfid(), srcSvr);
-		pfidSrcDiskMap.put(task.getPfid(), srcDisk);
-		
-		dispatchTaskQueue.add(task);
-		dispatchTaskMap.put(task.getPfid(), task);
-		
-		return true;
 	}
 	
 	public boolean createSynTask(DispatchTask task, List<SynTask> retTasks) {
@@ -389,148 +364,11 @@ public class Manager implements InitializingBean {
 		return true;
 	}
 	
-	public boolean checkMap(long pfid, int state) {
-		if (state != 0 || 
-				(!waitDispatchMap.containsKey(pfid) || waitDispatchMap.get(pfid).size() == 0)
-				&& (!waitSrcMap.containsKey(pfid) || waitSrcMap.get(pfid).size() == 0)) {
-			if (dispatchTaskMap.containsKey(pfid)) {
-				if (dispatchTaskMap.get(pfid).getTaskNum() == 0) {
-					// TODO: do some log
-					return true;
-				}
-				getCompleteQueue().add(new TaskStatusBuilder()
-											.pfid(pfid)
-											.status(state)
-											.build());
-				dispatchTaskMap.remove(pfid);
-			} else {
-				// TODO: do some log
-			}
-			waitDispatchMap.remove(pfid);
-			waitSrcMap.remove(pfid);
-			completeMap.remove(pfid);
-			return true;
-		}
-		
-		int count = 0;
-		if (completeMap.containsKey(pfid)) {
-			count = completeMap.get(pfid).size();
-		}
-		if (count >= confFileNum) {
-			long totalNum = waitSrcMap.get(pfid).size() + waitDispatchMap.get(pfid).size() + count;
-			// TODO: do some log
-			if (count * 100 / totalNum >= confFileRate
-					&& (!storeDiskMap.containsKey(pfid) || storeDiskMap.get(pfid).size() == 0)) {
-				if (dispatchTaskMap.containsKey(pfid)) {
-					if (dispatchTaskMap.get(pfid).getTaskNum() == 0) {
-						// TODO: do some log
-						return true;
-					}
-					getCompleteQueue().add(new TaskStatusBuilder()
-												.pfid(pfid)
-												.status(state)
-												.build());
-					// TODO: do some log
-					dispatchTaskMap.remove(pfid);
-				} else {
-					// TODO: do some log
-				}
-				waitDispatchMap.remove(pfid);
-				waitSrcMap.remove(pfid);
-				completeMap.remove(pfid);
-				return true;
-			}
-			if (dispatchTaskMap.containsKey(pfid)) {
-				if (dispatchTaskMap.get(pfid).getPriority() != 3) {
-					dispatchTaskMap.get(pfid).setPriority(3);
-					dispatchTaskQueue.add(dispatchTaskMap.get(pfid));
-				}
-				waitSrcMap.remove(pfid);
-			}
-		}
-		return true;
-	}
-	
-	public void doTask(long pfid, int type) {
-		if (type == COMMON_NORMAL_DO_TASK) {
-			FidSynTaskMap srcTaskMap = completeMap.get(pfid);
-			if (!waitSrcMap.containsKey(pfid) || waitSrcMap.get(pfid).size() == 0) {
-				// TODO: do some log 
-				return;
-			}
-			FidSynTaskMap destTaskMap = waitSrcMap.get(pfid);
-			List<SynTask> destTask = Lists.newLinkedList();
-			List<SynTask> srcTask = Lists.newLinkedList();
-			List<SynTask> srcInit = Lists.newLinkedList();
-			for (Entry<Long, SynTask> entry : srcTaskMap.entrySet()) {
-				if (entry.getValue().getSvrType() == SVR_TYPE_INIT_SRC
-						&& entry.getValue().getChildNum() < srcSelector.getChildNum()) {
-					srcInit.add(entry.getValue());
-				} else if (entry.getValue().getChildNum() < srcSelector.getChildNum()
-						&& !Mappings.NO_SRC_NODES.contains(entry.getValue().getDestDiskId() / GLOBAL_MOD)) {
-					srcTask.add(entry.getValue());
-				}
-			}
-			for (Entry<Long, SynTask> entry : destTaskMap.entrySet()) {
-				destTask.add(entry.getValue());
-			}
-			if (srcTask.isEmpty() && srcInit.isEmpty()) {
-				// TODO: do some log
-				return;
-			}
-			if (dispatchTaskMap.containsKey(pfid)) {
-				if (srcTask.isEmpty()) {
-					srcSelector.FindSrc(destTask, srcInit, dispatchTaskMap.get(pfid).isUniqIsp());
-				} else {
-					srcSelector.FindSrc(destTask, srcTask, dispatchTaskMap.get(pfid).isUniqIsp());
-				}
-			} else {
-				if (srcTask.isEmpty()) {
-					srcSelector.FindSrc(destTask, srcInit);
-				} else {
-					srcSelector.FindSrc(destTask, srcTask);
-				}
-			}
-			
-			if (!srcTask.isEmpty()) {
-				for (SynTask synTask : srcTask) {
-					if (completeMap.get(pfid).contains(synTask.getDestDiskId())) {
-						completeMap.get(pfid).put(synTask.getDestDiskId(), synTask);
-					}
-				}
-			} else {
-				for (SynTask synTask : srcInit) {
-					if (completeMap.get(pfid).contains(synTask.getDestDiskId())) {
-						completeMap.get(pfid).put(synTask.getDestDiskId(), synTask);
-					}
-				}
-			}
-			
-			// TODO: do some log
-			for (SynTask synTask : destTask) {
-				if (synTask.getSrcDiskId() == 0
-						|| synTask.getSrcSvrId() == 0) {
-					if (Mappings.PFID_MAP.containsKey(pfid)) {
-						synTask.setSrcSvrId(Mappings.PFID_SRC_SRV_MAP.get(pfid));
-						synTask.setSrcDiskId(Mappings.PFID_SRC_DISK_MAP.get(pfid));
-					}
-					// TODO: do some log
-					waitSrcMap.get(pfid).remove(synTask.getDestDiskId());
-					waitDispatchMap.get(pfid).put(synTask.getDestDiskId(), synTask);
-					synTaskQueue.add(synTask);
-				}
-			}
-			
-		} else if (type == COMMON_FULL_DO_TASK) {
-			
-		}
-	}
-	
 	private boolean createSynTask(DispatchTask task, Map<Long, Set<Long>> mapSet, List<SynTask> retTasks) {
 		int iCount = 0;
 		if (task.getTaskType() == COMMON_NODE_HOT || task.getTaskType() == COMMON_NODE_COLD) {
 			Map<Long, AreaNode> areaNodes = 
-					task.getTaskType() == COMMON_NODE_HOT ? hotAreaNodes : coldAreaNodes;
+					task.getTaskType() == COMMON_NODE_HOT ? Mappings.HOT_AREA_NODES : Mappings.COLD_AREA_NODES;
 			for (Entry<Long, AreaNode> entry : areaNodes.entrySet()) {
 				List<SynTask> synTasks = null;
 				int num = task.getNum() - mapSet.get(entry.getValue().getAreaId()).size();
@@ -541,16 +379,52 @@ public class Manager implements InitializingBean {
 					entry.getValue().createTask();
 				}
 				if (synTasks == null || synTasks.size() == 0) {
+					// TODO: do some log
 					continue;
 				}
 				retTasks.addAll(synTasks);
-				if (iCount == coldAreaNodes.size())
-					return true;
 			}
+			if (iCount == areaNodes.size())
+				return true;
 		} else if (task.getTaskType() == COMMON_GROUP_COLD) {
-			
+			for (Entry<Long, GroupNode> entry : Mappings.GROUP_NODES.entrySet()) {
+				List<SynTask> synTasks = null;
+				int num = task.getNum() - mapSet.get(entry.getValue().getGroupId()).size();
+				if (num <= 0) {
+					++iCount;
+				} else {
+					// TODO: Create Task
+				}
+				if (synTasks == null || synTasks.size() == 0) {
+					// TODO: do some log
+					continue;
+				}
+				retTasks.addAll(synTasks);
+			}
+			if (iCount == Mappings.GROUP_NODES.size()) {
+				return true;
+			}
+			operateConfNode(task, retTasks);
 		}
 		return false;
+	}
+	
+	private void operateConfNode(DispatchTask task, List<SynTask> retTasks) {
+		Map<Long, Set<Long>> mapSet = getSvrMap(task, COMMON_NODE_HOT);
+		for (Long each : confNodes) {
+			List<SynTask> synTasks = null;
+			int num = task.getNum() - mapSet.get(each).size();
+			if (num > 0 && Mappings.COLD_AREA_NODES.containsKey(each)) {
+				// TODO: Create Task
+			} else {
+				continue;
+			}
+			if (synTasks == null || synTasks.size() == 0) {
+				// TODO: do some log
+				continue;
+			}
+			retTasks.addAll(synTasks);
+		}
 	}
 	
 	private Map<Long, Set<Long>> getSvrMap(DispatchTask task, int type) {
@@ -685,42 +559,9 @@ public class Manager implements InitializingBean {
 		return value;
 	}
 	
-	public SessionFactory getCdnSystemSessionFactory() {
-		return cdnSystemSessionFactory;
-	}
-
-	public void setCdnSystemSessionFactory(
-			SessionFactory cdnSystemSessionFactory) {
-		this.cdnSystemSessionFactory = cdnSystemSessionFactory;
-	}
-
-	public SessionFactory getUtccSessionFactory() {
-		return utccSessionFactory;
-	}
-
-	public void setUtccSessionFactory(SessionFactory utccSessionFactory) {
-		this.utccSessionFactory = utccSessionFactory;
-	}
-	
-	public SessionFactory getCdnDeliverySessionFactory() {
-		return cdnDeliverySessionFactory;
-	}
-
-	public void setCdnDeliverySessionFactory(
-			SessionFactory cdnDeliverySessionFactory) {
-		this.cdnDeliverySessionFactory = cdnDeliverySessionFactory;
-	}
-
+	// contains
 	public boolean containsKeyInDispatchMap(long pfid) {
 		return dispatchTaskMap.containsKey(pfid);
-	}
-	
-	public boolean dispatchMapInsert(long pfid, DispatchTask dispatchTask) {
-		return dispatchTaskMap.put(pfid, dispatchTask) == null ? false : true;
-	}
-	
-	public DispatchTask dispatchMapGet(long pfid) {
-		return dispatchTaskMap.get(pfid);
 	}
 	
 	public boolean containsKeyInCompleteMap(long pfid) {
@@ -731,82 +572,37 @@ public class Manager implements InitializingBean {
 		return waitSrcMap.containsKey(pfid);
 	}
 	
-	public boolean waitSrcMapInsert(long pfid, FidSynTaskMap fidSynTaskMap) {
-		return waitSrcMap.put(pfid, fidSynTaskMap) == null ? false : true;
-	}
-	
-	public FidSynTaskMap waitSrcMapGet(long pfid) {
-		return waitSrcMap.get(pfid);
-	}
-	
 	public boolean constainsKeyInStoreDiskMap(long pfid) {
 		return storeDiskMap.containsKey(pfid);
+	}
+	
+	// inserts 
+	public boolean dispatchMapInsert(long pfid, DispatchTask dispatchTask) {
+		return dispatchTaskMap.put(pfid, dispatchTask) == null ? false : true;
+	}
+	
+	public boolean waitSrcMapInsert(long pfid, FidSynTaskMap fidSynTaskMap) {
+		return waitSrcMap.put(pfid, fidSynTaskMap) == null ? false : true;
 	}
 	
 	public boolean storeDiskMapInsert(long pfid, Set<Long> set) {
 		return storeDiskMap.put(pfid, set) == null ? false : true;
 	}
 	
+	// gets
+	public DispatchTask dispatchMapGet(long pfid) {
+		return dispatchTaskMap.get(pfid);
+	}
+	
+	public FidSynTaskMap waitSrcMapGet(long pfid) {
+		return waitSrcMap.get(pfid);
+	}
+	
 	public Set<Long> storeDiskMapGet(long pfid) {
 		return storeDiskMap.get(pfid);
 	}
 	
-	public Queue<Task> getTaskQueue() {
-		return taskQueue;
-	}
-
-	public Queue<TimeTask> getTimeTaskQueue() {
-		return timeTaskQueue;
-	}
-
-	public PriorityQueue<TimeTask> getTimeTaskPriorityQueue() {
-		return timeTaskPriorityQueue;
-	}
-
-	public Queue<TaskStatus> getCompleteQueue() {
-		return completeQueue;
-	}
-
-	public Map<Long, FidSynTaskMap> getCompleteMap() {
-		return completeMap;
-	}
-
-	public PriorityQueue<DispatchTask> getDispatchTaskQueue() {
-		return dispatchTaskQueue;
-	}
-
-	public Map<Long, DispatchTask> getDispatchTaskMap() {
-		return dispatchTaskMap;
-	}
-
-	public PriorityQueue<TaskTimeout> getTaskTimeoutPriorityQueue() {
-		return taskTimeoutPriorityQueue;
-	}
-
-	public static int getConfFileNum() {
-		return confFileNum;
-	}
-
-	public static void setConfFileNum(int confFileNum) {
-		Manager.confFileNum = confFileNum;
-	}
-
-	public static int getConfFileRate() {
-		return confFileRate;
-	}
-
-	public static void setConfFileRate(int confFileRate) {
-		Manager.confFileRate = confFileRate;
-	}
-
-	public static int getConfFileLimitSpeed() {
-		return confFileLimitSpeed;
-	}
-
-	public static void setConfFileLimitSpeed(int confFileLimitSpeed) {
-		Manager.confFileLimitSpeed = confFileLimitSpeed;
-	}
-	
+	// Execution
 	private void run() {
 		ses.scheduleWithFixedDelay(new TaskProducerThread(this), 0, 30, TimeUnit.HOURS);
 		dtpSes.scheduleWithFixedDelay(new DispatchTaskProducerThread(this), 0, 30, TimeUnit.SECONDS);
@@ -816,6 +612,130 @@ public class Manager implements InitializingBean {
 			}
 		}
 	}
+	
+	// Getter
+	public SessionFactory getCdnSystemSessionFactory() {
+		return cdnSystemSessionFactory;
+	}
+	
+	public SessionFactory getCdnDeliverySessionFactory() {
+		return cdnDeliverySessionFactory;
+	}
+	
+	public SessionFactory getUtccSessionFactory() {
+		return utccSessionFactory;
+	}
+	
+	public int getConfFileNum() {
+		return confFileNum;
+	}
+	
+	public int getConfFileRate() {
+		return confFileRate;
+	}
+
+	public int getConfFileLimitSpeed() {
+		return confFileLimitSpeed;
+	}
+	
+	public List<Long> getConfNodes() {
+		return confNodes;
+	}
+
+	public SourceSelector getSrcSelector() {
+		return srcSelector;
+	}
+	
+	public PriorityQueue<DispatchTask> getDispatchTaskQueue() {
+		return dispatchTaskQueue;
+	}
+	
+	public PriorityQueue<SynTask> getSynTaskQueue() {
+		return synTaskQueue;
+	}
+	
+	public PriorityQueue<TimeTask> getTimeTaskPriorityQueue() {
+		return timeTaskPriorityQueue;
+	}
+	
+	public PriorityQueue<TaskTimeout> getTaskTimeoutPriorityQueue() {
+		return taskTimeoutPriorityQueue;
+	}
+	
+	public Queue<TimeTask> getTimeTaskQueue() {
+		return timeTaskQueue;
+	}
+	
+	public Queue<Task> getTaskQueue() {
+		return taskQueue;
+	}
+	
+	public Queue<TaskStatus> getCompleteQueue() {
+		return completeQueue;
+	}
+	
+	public Map<Long, DispatchTask> getDispatchTaskMap() {
+		return dispatchTaskMap;
+	}
+	
+	public Map<Long, FidSynTaskMap> getWaitSrcMap() {
+		return waitSrcMap;
+	}
+	
+	public Map<Long, FidSynTaskMap> getWaitDispatchMap() {
+		return waitDispatchMap;
+	}
+	
+	public Map<Long, FidSynTaskMap> getCompleteMap() {
+		return completeMap;
+	}
+
+	public Map<Long, Set<Long>> getStoreDiskMap() {
+		return storeDiskMap;
+	}
+
+	public Map<Long, Long> getPfidSrcSrvMap() {
+		return pfidSrcSrvMap;
+	}
+
+	public Map<Long, Long> getPfidSrcDiskMap() {
+		return pfidSrcDiskMap;
+	}
+	
+	// Setter
+	public void setCdnSystemSessionFactory(
+			SessionFactory cdnSystemSessionFactory) {
+		this.cdnSystemSessionFactory = cdnSystemSessionFactory;
+	}
+
+	public void setCdnDeliverySessionFactory(
+			SessionFactory cdnDeliverySessionFactory) {
+		this.cdnDeliverySessionFactory = cdnDeliverySessionFactory;
+	}
+	
+	public void setUtccSessionFactory(SessionFactory utccSessionFactory) {
+		this.utccSessionFactory = utccSessionFactory;
+	}
+	
+	public void setConfFileNum(int confFileNum) {
+		this.confFileNum = confFileNum;
+	}
+
+	public void setConfFileRate(int confFileRate) {
+		this.confFileRate = confFileRate;
+	}
+
+	public void setConfFileLimitSpeed(int confFileLimitSpeed) {
+		this.confFileLimitSpeed = confFileLimitSpeed;
+	}
+	
+	public void setConfNodes(List<Long> confNodes) {
+		this.confNodes = confNodes;
+	}
+	
+	public void setSrcSelector(SourceSelector srcSelector) {
+		this.srcSelector = srcSelector;
+	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -824,5 +744,5 @@ public class Manager implements InitializingBean {
 		Session utccSession = utccSessionFactory.openSession();
 		this.init(3, cdnSystemSession, cdnDeliverySession, utccSession);
 	}
-	
+
 }

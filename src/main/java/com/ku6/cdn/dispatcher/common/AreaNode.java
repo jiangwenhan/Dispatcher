@@ -1,5 +1,7 @@
 package com.ku6.cdn.dispatcher.common;
 
+import static com.ku6.cdn.dispatcher.common.Constrants.LEFT_SIZE_INIT_TYPE;
+
 import java.util.List;
 
 public class AreaNode {
@@ -11,15 +13,23 @@ public class AreaNode {
 	private List<SvrNode> svrList;
 	
 	public AreaNode(long nodeId) {
-		
-	}
-	
-	public boolean init() {
-		return false;
+		this.areaId = nodeId;
+		modNum = 0;
 	}
 	
 	public void createTask() {
 		
+	}
+	
+	public void update(long modSize, Integer type) {
+		long startNum = 1;
+		for (SvrNode svrNode : svrList) {
+			svrNode.update(startNum, modSize, type);
+			if (svrNode.isEnable()) {
+				startNum = svrNode.getHigher() + 1;
+				modNum += (svrNode.getHigher() - svrNode.getLower() + 1);
+			}
+		}
 	}
 
 	public long getAreaId() {

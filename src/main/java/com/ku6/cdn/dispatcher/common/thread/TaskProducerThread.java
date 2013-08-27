@@ -180,8 +180,4 @@ public class TaskProducerThread implements Runnable {
 		}
 	}
 
-	public Manager getManager() {
-		return manager;
-	}
-
 }

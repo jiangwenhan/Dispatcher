@@ -30,7 +30,6 @@ public class GroupNodeBuilder implements Builder<GroupNode> {
 		GroupInfo group = Mappings.GROUPS.get(_groupId);
 		_groupType = group.getGroupType();
 		_ispType = group.getIspId();
-		generateSvrNodeList(_groupId);
 		long minSpace = MIN_DISK_SIZE;
 		Iterator<SvrNode> iterator = _svrList.iterator();
 		while (iterator.hasNext()) {
@@ -41,22 +40,31 @@ public class GroupNodeBuilder implements Builder<GroupNode> {
 				minSpace = leftSize;
 			}
 		}
+		groupNode.setGroupId(_groupId);
+		groupNode.setGroupType(_groupType);
+		groupNode.setIspType(_ispType);
+		groupNode.setModNum(_modNum);
+		groupNode.setSvrList(_svrList);
 		return groupNode;
 	}
 	
-	private void generateSvrNodeList(long groupId) {
+	private void generateSvrNodeList() {
 		for (Entry<Long, ServerInfo> entry : Mappings.SERVERS.entrySet()) {
 			ServerInfo server = entry.getValue();
 			if (server.getInUse() == COMMON_SVR_IN_USE
 					&& server.getNginxStatus() == COMMON_SVR_OK
 					&& server.getDispStatus() == COMMON_SVR_OK
 					&& server.getSvrType() == COMMON_SVR_CDN
-					&& server.getIsCache() == 0) {
-				if ((server.getGroupId() == 190 && server.getNodeId() == 101)
-						|| (server.getGroupId() == 146 && server.getNodeId() == 228)) {
-					_svrList.add(new SvrNodeBuilder()
-										.svrId(server.getSvrId())
-										.build());
+					/*&& server.getIsCache() == 0*/) {
+				if (server.getIsCache() == 0) {
+					if ((server.getGroupId() == 190 && server.getNodeId() == 101)
+							|| (server.getGroupId() == 146 && server.getNodeId() == 228)) {
+						_svrList.add(new SvrNodeBuilder()
+											.svrId(server.getSvrId())
+											.build());
+					}
+				} else {
+					
 				}
 			}
 		}
@@ -79,6 +87,11 @@ public class GroupNodeBuilder implements Builder<GroupNode> {
 	
 	public GroupNodeBuilder modNum(long modNum) {
 		this._modNum = modNum;
+		return this;
+	}
+	
+	public GroupNodeBuilder svrList(List<SvrNode> svrList) {
+		this._svrList = svrList;
 		return this;
 	}
 

@@ -5,6 +5,7 @@ import static com.ku6.cdn.dispatcher.common.Constrants.*;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.Session;
 
 import com.ku6.cdn.dispatcher.Manager;
 import com.ku6.cdn.dispatcher.common.SynTask;
@@ -97,14 +98,14 @@ public class SynTaskConsumerThread implements Callable<Boolean> {
 					  .append(1 + ", ")
 					  .append("NOW())");
 		}
-		
-		manager.getCdnSystemSessionFactory().getCurrentSession().createSQLQuery(sqlBuilder.toString());
+
+		sqlQuery(manager.getCdnSystemSessionFactory().openSession(), sqlBuilder.toString());
 		
 		return true;
 	}
-
-	public Manager getManager() {
-		return manager;
-	}
 	
+	private void sqlQuery(Session session, String sql) {
+		session.createSQLQuery(sql);
+	}
+
 }

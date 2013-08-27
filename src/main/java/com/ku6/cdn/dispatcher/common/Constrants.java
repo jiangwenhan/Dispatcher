@@ -65,53 +65,6 @@ public final class Constrants {
 	public static final String GROUP_MODIFY_TIME = "modify_time";
 	public static final String GROUP_REMARK = "remark";
 
-	// Task column name
-	public static final String TASK_TASK_ID = "task_id";
-	public static final String TASK_TASK_CREATE_TIME = "task_create_time";
-	public static final String TASK_VID = "vid";
-	public static final String TASK_SID = "sid";
-	public static final String TASK_UID = "uid";
-	public static final String TASK_SRC_DOMAIN = "src_domain";
-	public static final String TASK_SRC_PATH = "src_path";
-	public static final String TASK_UPLOAD_SERVER = "upload_server";
-	public static final String TASK_DEST_DOMAIN = "dest_domain";
-	public static final String TASK_PRIORITY = "priority";
-	public static final String TASK_VIDEO_BITRATE = "video_bitrate";
-	public static final String TASK_AUDIO_BITRATE = "audio_bitrate";
-	public static final String TASK_WIDTH = "width";
-	public static final String TASK_FPS = "fps";
-	public static final String TASK_ENCODE_TYPE = "encode_type";
-	public static final String TASK_ENCODE_PREFER = "encode_prefer";
-	public static final String TASK_EXTRA_ARGS = "extra_args";
-	public static final String TASK_REGULATION = "regulation";
-	public static final String TASK_WATERMARK = "watermark";
-	public static final String TASK_SERVER_PREFER = "server_prefer";
-	public static final String TASK_TRANSCODE_SERVER = "transcode_server";
-	public static final String TASK_TRANSCODE_START_TIME = "transcode_start_time";
-	public static final String TASK_TRANSCODE_FINISH_TIME = "transcode_finish_time";
-	public static final String TASK_TRANSCODE_STATUS = "transcode_status";
-	public static final String TASK_TRANSCODE_STATUS_DESC = "transcode_status_desc";
-	public static final String TASK_PIC_PATH = "pic_path";
-	public static final String TASK_BIGPIC_PATH = "bigpic_path";
-	public static final String TASK_SEG_COUNT = "seg_count";
-	public static final String TASK_PLAY_TIME = "play_time";
-	public static final String TASK_SEG_TIME = "seg_time";
-	public static final String TASK_VSIZE = "vsize";
-	public static final String TASK_VIDEO_DOMAIN = "video_domain";
-	public static final String TASK_VIDEO_PATH = "video_path";
-	public static final String TASK_DISPATCH_STATUS = "dispatch_status";
-	public static final String TASK_DISPATCH_SRC_IP = "dispatch_src_ip";
-	public static final String TASK_DISPATCH_START_TIME = "dispatch_start_time";
-	public static final String TASK_DISPATCH_FINISH_TIME = "dispatch_finish_time";
-	public static final String TASK_REPORT_STATUS = "report_status";
-	public static final String TASK_REPORT_START_TIME = "report_start_time";
-	public static final String TASK_REPORT_FINISH_TIME = "report_finish_time";
-	public static final String TASK_CHECK_STATUS = "check_status";
-	public static final String TASK_CHECK_FAIL_REASON = "check_fail_reason";
-	public static final String TASK_WAP_ARGS = "wap_args";
-	public static final String TASK_COVER_LOGO_AREA = "cover_logo_area";
-	public static final String TASK_AUDIT_RESULT = "audit_result";
-
 	// macro
 	public static final Integer TASK_ID_TYPE = 1;
 	public static final Integer PFID_TYPE = 2;
